@@ -1,0 +1,114 @@
+;Fishing helper 0.72
+;kun haluat vaihtaa kalastus suuntaa paina suunnan vaihto nappulaa ja sen jälkeen
+;odota että tulee kala tai vaihtoehtoisesti nosta koho vedestä kävelemällä johkiin suuntaan
+;ja valitse suunta mihin haluat kalastaa
+
+;alustetaan namiskat
+menu Window Title Fishing 0.70
+menu Window Color BtnFace
+menu Window Size 100 100
+menu Button button_4 10 60 50 35 South
+menu Button button_5 10 4 100 25 suunnan vaihto
+menu Show
+;alustetaan muuttujat
+set %north #false
+set %west #false
+set %east #false
+set %south #false
+set %x
+set %y
+set %My
+set %Mx
+
+menuloop:
+if #menubutton = button_4 ;South
+{
+set %south #true
+set %x -6
+set %y 6
+goto alku
+}
+else
+{
+goto menuloop ;jos mikään ei toteudu mennään takas menulooppiin
+}
+
+alku:
+if #menubutton = button_5 ;jos on suunnanvaihto namiskaa painettu
+{
+;suunnat falseksi
+set %south #false
+goto menuloop ;mennään takaisin menulooppiin
+}
+
+if %south ;jos joku suunnista true
+{
+set %Mx %x ;tallennetaan x
+set %My %y ;tallennetaan y
+finditem XHF ;etitään vapa repusta
+Set #lobjectid #findid ;laitetaan käteen
+set #ltargetkind 2 ;säädetään vedelle
+set #LTargetX %x + #CharPosX ;hahmosta katsottuna x akseli
+set #LTargetY %y + #CharPosY ;hahmosta katsottuna y akseli
+event Macro 17 0 ;Last Object
+target
+event macro 22 0 ;Last Target
+;tarkistetaan mikä suunta on true
+
+if %south
+{
+set %y %y - 1
+    if %y = -3
+    {
+    set %y 6
+    }
+
+}
+
+goto zekki ;alku subi loppuu mennään tarkisteleen journalia
+}
+
+
+;simppeli journalzekki menee alku subiin jos ei tu kalaa ja muistetaan jos tulee kala muuten lopetetaan
+zekki:
+set %jrnl #jindex
+while #true
+{
+      if #jindex > %jrnl
+      {
+      set %jrnl %jrnl + 1
+      scanjournal %jrnl
+      if Tästä_kohtaa_ei_tunnu_kaloja_olevan in #journal
+      goto alku
+      if Kala_pääsi_karkuun in #journal
+      goto TileMuisti
+      if Ongit_ylös_vanhan_pullon in #journal
+      goto TileMuisti ;jos tilestä tuli jotain asetetaan x,y takaisin
+      if Pyydykseksi_tarttui_vanha_kenkäpari in #journal
+      goto TileMuisti
+      if Ei_tuolla_mitään_kaloja_uiskentele! in #sysmsg ;tulee kun koittaa heittää laiturille/maalle yms paikkaan ja macro tykkää hajota
+      goto alku
+      if Ongit_ylös_kuluneen_kartan in #journal
+      goto TileMuisti
+      if Pyydystät in #journal
+      goto TileMuisti
+      if Nostat_kohon_vedestä in #journal
+      goto alku
+      if Tarvitset_pyydyksiä_onkiaksesi in #sysmsg ;||HUOM||teksti voi olla eri
+      goto stop
+      if Vapasi_napsahtaa_poikki in #journal;||HUOM||voi olla #sysmsg
+      goto alku
+
+      }
+}
+
+
+stop:
+display ok Hommaa lisää syöttejä
+if #dispres = ok
+HALT
+
+TileMuisti:
+set %x %Mx ;asetataan x takaisin
+set %y %My ;asetataan y takaisin
+goto alku

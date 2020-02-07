@@ -1,0 +1,40 @@
+alku:
+if #MANA < 10
+{
+goto mana
+}
+else
+{
+event macro 13 32
+wait 5s
+goto zekki
+}
+
+mana:
+event macro 13 46
+sleep 50
+if #MANA > 62
+goto alku
+else
+goto mana
+
+
+zekki:
+set %jrnl #jindex
+while #true
+{
+      if #jindex > %jrnl
+      {
+      set %jrnl %jrnl + 1
+      scanjournal %jrnl
+      if you_fail_to in #sysmsg ;huom #journal on journal viesti, tahan mita tulee journaliin kun faila ja toiseen kun onnaa alaviiva on väli
+      goto alku
+      if You_contact_the in #sysmsg 
+      goto alku	
+      }
+      else
+      {
+      goto mana ;periaatteessa ehkä goto zekki
+      }
+}
+

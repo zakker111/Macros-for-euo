@@ -1,0 +1,2 @@
+if #contname = generic_gump
+sound Alert1.wav

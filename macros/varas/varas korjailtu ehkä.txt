@@ -1,0 +1,63 @@
+set *CharID KRZMH ;CHARAN ID(tämä pitää kysyä kaverilta Character Info-->#CHARID
+set *SnoopBag AMOPNVF ;tämä on hahmo kohtainen snooppaa ja lue Container Info--->#CONTID
+set *ItemType TSF ;Varastettavan esineen tyyppi esm Last Action--->#LLIFTEDTYPE:TSF
+
+snoop:
+msg .skill snooping$ ;Sanotaan .snoop (skilliä ei voi käyttää)
+target ;Odotetaan targettia (tai 3s, oletus)
+set #ltargetid *CharID ;Last targetiksi Uhrin ID
+event macro 22 ;Targetoi last targetin
+
+sleep 4500 ;nukkuminen millisekuntteina jos kokoajan snooppaa nosta tätä kunnes hyvä
+if #CONTID = *SnoopBag ;reppu auki
+{
+   gosub varkaus ;varastetaan
+   }
+if #CONTID = N/A ;reppu kiinni
+{
+   goto snoop ;snoopataan
+   }
+
+
+
+
+
+sub varkaus
+    set %done 0
+    while %done = 0 ;Loopataan kunnes %done muuttuu
+    {
+      finditem *ItemType C_ , *SnoopBag ;Etsitään esine snoopatusta laukusta
+                                ;Selvitä snoopatun laukun ID ensin (snooppaamalla)
+      sleep 500
+      if #findid <> X ;Jos esine löytyy toisen repusta, varastus:
+      {
+        set #ltargetid #findid ;Löydetty esine last targetiksi
+        event macro 13 33 ;Käytetään stealingia
+        target ;Odotetaan targettia
+        event macro 22 ;Targetoidaan last target
+        sleep 500
+      }
+      finditem *ItemType C_ , #BACKPACKID ;Etsitään esineitä omasta laukusta.
+      if #findid <> X ;Jos esine löytyy omasta laukusta, varastaminen on selvästi onnistunut. Sillon podutetaan ja palataan snooppaamaan.
+      {
+        set %done 1 ;Ilmoitetaan whilelle, että ollaan valmiita
+        gosub drop ;Tiputetaan
+      }
+      if #CONTID <> *SnoopBag ;Jos uhrin laukku on sulkeutunut, ollaan epäonnistuttu. Palataan snooppiin.
+      {
+       goto snoop
+      }
+      wait 2s
+    }
+return
+
+sub drop ;Tiputus
+  finditem *ItemType C_ , #backpackid ;Etsitään esinettä omasta repusta
+   if #findid <> X ;Jos löytyy niin...
+   {
+    Exevent Drag #findid #findstack ;raahataan esine (stacki)
+    Exevent Dropg #charposx #charposy #charposz ;tiputetaan omiin jalkoihin
+   }
+return
+
+

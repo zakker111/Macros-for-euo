@@ -1,0 +1,229 @@
+;Goes through -2 -> 2 in both directions
+
+;gosub ore 1267 1215  ;copper
+;gosub ore 1271 1215  ;copper
+;gosub ore 1275 1215  ;copper
+;gosub ore 1275 1219  ;copper
+;gosub ore 1275 1223  ;copper
+;gosub ore 1271 1223  ;copper
+;gosub ore 1267 1223  ;copper
+;gosub ore 1263 1223  ;copper
+;gosub ore 1263 1219  ;copper
+
+;gosub ore 1249 2661  ;bronze, south from Destard
+;gosub ore 1249 2656  ;bronze
+;gosub ore 1244 2656  ;bronze
+;gosub ore 1244 2651  ;bronze
+;gosub ore 1249 2651  ;bronze
+;gosub ore 1249 2646  ;bronze
+;gosub ore 1254 2646  ;bronze
+;gosub ore 1257 2649  ;bronze
+;gosub ore 1256 2654  ;bronze
+;gosub ore 1253 2657  ;bronze
+
+;gosub ore 1110 2651  ;bronze2, north from Destard
+;gosub ore 1115 2651  ;bronze2
+;gosub ore 1120 2651  ;bronze2
+;gosub ore 1120 2656  ;bronze2
+;gosub ore 1115 2656  ;bronze2
+;gosub ore 1110 2656  ;bronze2
+;gosub ore 1112 2661  ;bronze2
+;gosub ore 1117 2661  ;bronze2
+
+;gosub ore 1661 2934  ;bronze3, hidden valley
+;gosub ore 1657 2933  ;bronze3
+;gosub ore 1655 2928  ;bronze3
+;gosub ore 1654 2923  ;bronze3
+;gosub ore 1653 2918  ;bronze3
+;gosub ore 1651 2913  ;bronze3
+;gosub ore 1649 2908  ;bronze3
+;gosub ore 1649 2903  ;bronze3
+;gosub ore 1647 2898  ;bronze3
+
+;gosub ore 1655 2965  ;bronze4, hidden valley, hidden cave
+;gosub ore 1651 2965  ;bronze4
+;gosub ore 1651 2961  ;bronze4
+;gosub ore 1654 2961  ;bronze4
+
+gosub ore 6096 2323   ;kabal
+gosub ore 6091 2323   ;kabal
+gosub ore 6086 2323   ;kabal
+gosub ore 6981 2323   ;kabal
+gosub ore 6076 2323   ;kabal
+gosub ore 6071 2321   ;kabal
+
+;gosub ore 4018 434    ;agapite
+;gosub ore 4023 434    ;agapite
+;gosub ore 4028 434    ;agapite
+;gosub ore 4028 439    ;agapite
+;gosub ore 4032 434    ;agapite
+;gosub ore 4031 429    ;agapite
+;gosub ore 4026 428    ;agapite
+;gosub ore 4021 430    ;agapite
+
+;gosub ore 1107 1818   ;dull copper
+;gosub ore 1104 1813   ;dull copper
+;gosub ore 1103 1804   ;dull copper
+;gosub ore 1102 1798   ;dull copper
+;gosub ore 1103 1793   ;dull copper
+
+;gosub ore 2263 1241   ;shadow, cove
+;gosub ore 2257 1240   ;shadow
+;gosub ore 2253 1242   ;shadow
+;gosub ore 2247 1243   ;shadow
+;gosub ore 2241 1243   ;shadow
+;gosub ore 2237 1242   ;shadow
+;gosub ore 2235 1238   ;shadow
+;gosub ore 2231 1234   ;shadow
+
+;gosub ore 2451 57     ;golden
+;gosub ore 2452 51     ;golden
+;gosub ore 2458 52     ;golden
+;gosub ore 2465 51     ;golden
+;gosub ore 2470 56     ;golden
+;gosub ore 2465 58     ;golden
+;gosub ore 2459 58     ;golden
+;gosub ore 2455 56     ;golden
+
+;gosub ore 1414 2890   ;verite, destard
+;gosub ore 1419 2889   ;verite
+;gosub ore 1424 2889   ;verite
+;gosub ore 1424 2884   ;verite
+;gosub ore 1418 2884   ;verite
+;gosub ore 1420 2893   ;verite
+
+;gosub ore 352 1453    ;valorite
+;gosub ore 357 1453    ;valorite
+;gosub ore 357 1448    ;valorite
+;gosub ore 362 1448    ;valorite
+;gosub ore 362 1453    ;valorite
+;gosub ore 355 1446    ;valorite
+;gosub ore 350 1446    ;valorite
+
+;gosub ore 5128 2948   ;bloodium
+;gosub ore 5127 2943   ;bloodium
+;gosub ore 5127 2938   ;bloodium
+;gosub ore 5130 2935   ;bloodium
+;gosub ore 5135 2935   ;bloodium
+;gosub ore 5132 2943   ;bloodium
+
+;gosub ore 5159 3003   ;bloodium2
+;gosub ore 5163 3002   ;bloodium2
+;gosub ore 5166 2998   ;bloodium2
+;gosub ore 5170 2997   ;bloodium2
+;gosub ore 5174 2995   ;bloodium2
+;gosub ore 5178 2993   ;bloodium2
+;gosub ore 5183 2987   ;bloodium2
+;gosub ore 5188 3003   ;bloodium2
+;gosub ore 5176 3008   ;bloodium2
+
+;gosub ore 5151 3019   ;bloodium3
+;gosub ore 5154 3017   ;bloodium3
+;gosub ore 5159 3015   ;bloodium3
+;gosub ore 5162 3014   ;bloodium3
+;gosub ore 5166 3012   ;bloodium3
+;gosub ore 5169 3010   ;bloodium3
+;gosub ore 5171 3009   ;bloodium3
+;gosub ore 5177 3008   ;bloodium3
+;gosub ore 5181 3006   ;bloodium3
+
+sub ore
+move %1 %2 0
+set %b -2
+while %b <= 2
+{
+  set %a -2
+  while %a <= 2
+  {
+    gosub usePickAxe ;Uses a pickaxe from the backpack
+    gosub clickGround %a %b ;Click the ground at (%a, %b), goes through 25 tiles around the miner
+    gosub waitForText
+    
+    if #weight > 420
+       {
+       ;sound alert1.wav
+       ;pause 20s
+       gosub nouki
+       }
+     if #hits < #maxhits
+        {
+        sound alert1.wav
+        }
+
+   
+    set %a %a + 1
+  }
+  set %b %b + 1
+}
+   
+return
+
+sub usePickAxe
+  finditem NPF C_ , #BACKPACKID ;NPF = PickAxe's type, search for one in backpack   WTH
+  if #FINDID = X ;If a pickaxe can't be found, inform and exit program
+  {
+    event sysMessage You are out of pickaxes
+    halt
+  }
+  set #LOBJECTID #FINDID ;Set the pickaxe's ID found to Last Object ID
+  event macro 17 ;Use last object
+  target ;Wait for target
+return
+
+sub clickGround
+  set %posx #CHARPOSX + %1
+  set %posy #CHARPOSY + %2
+  event sysMessage X-coord: %posx Y-coord: %posy
+  set #LTARGETX %posx ;Set new x-coordinate to Last Target Coordinates
+  set #LTARGETY %posy ;Set new y-coordinate to Last Target Coordinates
+  set #LTARGETZ #CHARPOSZ ;Set new z-coordinate to Last Target Coordinates
+  set #LTARGETKIND 3 ;Set last target kind, 3 should be cave floor
+  while #TARGCURS = 1 ;In case of lag or other disturbance
+    event macro 22 0 ;Click last target
+return
+
+sub waitForText
+  set %done 0
+  while %done = 0
+  {
+    for %n 0 10
+    {
+      scanJournal %n
+      if more in #journal
+      {
+         deleteJournal
+         set %done 1
+         wait 2s
+      }
+      if pickaxe in #journal
+      {
+        deleteJournal
+        set %a %a - 1 ;Because of this, mining will be continued in the same tile
+        set %done 1
+        wait 1s
+      }
+       if cannot in #journal
+      {
+         deleteJournal
+         set %done 1
+         wait 2s
+      }
+    }
+  }
+  deleteJournal
+return
+
+sub nouki
+sleep 300
+finditem DWJ C_ , #BACKPACKID
+set #ltargetid #findid
+set #LTargetKind 1
+Exevent Drag #findid #findstack
+Exevent Dropg #charposx #charposy #charposz
+msg Hevonen nouki$
+target
+wait 50
+event macro 22
+sleep 1000
+
+return

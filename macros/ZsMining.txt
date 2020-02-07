@@ -1,0 +1,684 @@
+set %bMove #true
+
+; todo:
+; - remember last mining spots and avoid them
+
+; How long to wait at certain times
+; If you get "action queued" or so, set it higher
+; 7 should work always
+set %nWait 3
+goto start
+;==================================
+; Script Name:   ZsMining
+; Author: ZanyScum
+; Version: 1.9
+; Client Tested with: 5.0.2d Patch 33
+; EUO version tested with:  1.50
+; Shard FS: Allure (OSI: Blue Falcon)
+; Revision Date:  2006-07-08
+; Public Release: 2006-03-05
+; Global Variables Used: *ZsM_bTeleportWhenFull, *ZsM_RecallItem1, *ZsM_RecallItem2, *ZsM_sTeleportType
+; Purpose: mining of caves near forges, random automove to new mining spots
+; Use-1: Have 1 Tinkertool and 1 Shovel with enough uses and start the script
+; Use-2: Have 1 Tinkertool and some ingots and start the script
+; Use-Addon: Use ZsMiningSetup for Recall/Sacred Journey
+; Long Description:
+;    Have the tools and ingots visible !
+;    You will dry-mine the spot you are at
+;    If you move, you will mine the new spot.
+;    If you need a shovel, it will be created
+;    If you have only one tinkertools, it will create one more
+;    If a forge is nearby it will be used.
+;    After auto-use of a forge, you will return to the previous mining spot
+;    If the variable %bMove is set to #false, you will not move automatically
+;    You will move at random, if a spot is dry
+;    Overview will be closed at macro start
+;    Statusbar will be opened at macro start
+;    When using ZsMiningSetup:
+;       Using Recall or SacredJourney to bank when nearly full with ingots
+;       Putting ingots into bank
+;       Get some iron ingots from bank (for tool creation)
+;       Recall/Journey back to mine
+;       If moving outside mining area, move back
+;       If moving so far, you can't see the forge, stop, or Recall/SacredJorney
+;
+;    Known bug: if you open the radar while mining, the macro will crash
+;==================================
+start:
+gosub zInit
+
+set %nStartX #CHARPOSX
+set %nStartY #CHARPOSY
+set %ingotTypes NMK_IMK_HMK_KMK_JMK_UMK_TMK_WMK_VMK_QMK_PMK_SMK_RMK_CNK_BNK_ENK_DNK_YMK_XMK_ANK_ZMK_KNK_JNK_MNK
+set %forgeTypes SMF_JJ_JBG
+set %StoneWorkerKeyTypes NUI
+set %StoneTypes VGH_QGH_PGH_SGH_RGH_BHH_CHH_DHH_EHH_YGH_XGH_TUI_WUI_VUI_KUI_PUI_SUI_RUI_CVI_BVI_EVI_DVI_YUI_PIT_SIT_RIT_MIT_LIT_OIT_NIT_YIT_XIT_AJT_ZIT_UIT_TIT_WIT_VIT_GJT_FJT_DWT_GWT_FWT_AWT_CWT_BWT_MWT_LWT_OWT_NWT_IWT_HWT_KWT_JWT_UWT_TWT_WWT_VWT_QWT_PWT_SWT_RWT_CXT_BXT_UZT_TZT_EAU_DAU_GAU_FAU_AAU_ZZT_CAU_BAU_GBU_FBU_IBU_HBU_SBU_RBU_UBU_TBU_OBU_XGU_AHU_ZGU_UGU_BVI
+gosub setupStoneWorkerKey
+gosub zMain
+gosub zHalt  (normal halt)
+
+zHalt (error, this should never happen)
+
+sub zMain ; ----------------------------------------
+
+    gosub sleepIfOffline
+
+    display ok "Status-bar and backpack MUST be opened ! (overview should be closed)"
+
+    ;event macro 8 2 ; open status
+    ;gosub checkStatusBar
+    ;event macro 9 8 ; close overview
+    ;event macro 8 7 ; open backpack
+
+    set %nIndexFrom #jIndex
+
+mainLoop:
+
+;    wait %nWait
+    gosub stonesToStoneWorkerKey
+    ;event macro 8 7 ; open backpack
+;    wait %nWait
+
+    onHotKey F1 alt
+             gosub zTeleportBankUnloadStop
+
+    set %nIndexTo #jIndex
+    for %nIndex %nIndexFrom %nIndexTo
+    {
+        scanjournal %nIndex
+        if your_backpack_is_full in #journal
+        {
+             gosub sleepIfOffline
+
+             gosub Smelting
+             wait %nWait
+             
+             gosub sleepIfOffline
+             
+             goto afterSmelt1
+        };if found
+
+        if you_can't_mine_there in #journal ; left mining area
+        {
+           gosub sleepIfOffline
+           if %nCantMineCounter > 3
+           {
+              event SysMessage I left the mining area, returning
+              gosub zTeleport *ZsM_sTeleportType *ZsM_RecallItem2
+              set %nCantMineCounter 0
+           }
+           else
+           {
+              if %nCantMineCounter = n/a
+                 set %nCantMineCounter 0
+              set %nCantMineCounter %nCantMineCounter + 1
+           }
+        }
+        else
+        {
+         set %nCantMineCounter 0
+        }
+    };for
+afterSmelt1:
+
+;   wait %nWait
+   gosub stonesToStoneWorkerKey
+;   wait %nWait
+
+   set %nWeight #WEIGHT
+   set %nMaxWeight #MAXWEIGHT
+   
+      set %nWeightNext %nWeight + 24
+
+   if *ZsM_bTeleportWhenFull <> n/a
+      set %nWeightNext %nWeightNext + 24
+   if ( %nWeightNext > %nMaxWeight ) || #WEIGHT > 400
+   {
+     gosub Smelting
+     wait %nWait
+     gosub stonesToStoneWorkerKey
+   }
+
+  set %nIndexFrom #jIndex ;%nIndexTo + 1
+
+  gosub mineOneTile
+
+  set %nIndexTo #jIndex
+  for %nIndex %nIndexFrom %nIndexTo
+  {
+      scanjournal %nIndex
+      if there_is_no_metal_here in #journal || you_can't_mine_that in #journal || you_can't_mine_there in #journal
+      {
+           gosub zMove
+           gosub sleepIfOffline
+           wait %nWait
+           goto afterMove
+      };if found
+  };for
+afterMove:
+
+ ; wait %nWait
+
+
+goto mainLoop
+
+return ; ----------------------------------------
+
+sub smelting ;-------------- smelting
+
+    gosub sleepIfOffline
+    
+    gosub stonesToStoneWorkerKey
+    
+    set %nPosBeforeSmeltingX #charPosX
+    set %nPosBeforeSmeltingY #charPosY
+    set %nPosBeforeSmeltingZ #charPosZ
+
+    finditem DWJ_TVJ_EWJ_GWJ C
+    if #findKind = -1
+    {
+       if *ZsM_bTeleportWhenFull = n/a
+       {
+          gosub zHalt (to heavy, but no ore)
+       }
+       else ; do teleport when full
+       {
+          gosub zTeleportBankUnloadTeleportMine
+       }
+    }
+
+    set %nLookingForForgeCounter 0
+startLookingForForge:
+
+    gosub sleepIfOffline
+
+    if %nLookingForForgeCounter > 20
+    {
+      if *ZsM_bTeleportWhenFull = n/a
+      {
+         display ok no forge found
+         gosub zHalt no forge found
+      }
+      gosub zTeleport *ZsM_sTeleportType *ZsM_RecallItem2
+      set %nLookingForForgeCounter 0
+    }
+
+
+    event SysMessage looking for a forge...
+    finditem %forgeTypes
+    if #findKind = -1
+    {
+       if %nForgeId <> n/a
+       {
+           gosub estimateDistance %nForgeX %nForgeY
+           set %nDist #result
+           if %nDist < 5000
+              event PathFind %nForgeX %nForgeY
+           wait 1s
+       }
+    
+       set %nLookingForForgeCounter %nLookingForForgeCounter + 1
+       wait 1s
+       goto startLookingForForge
+    }
+    
+    if #findDist > 2
+    {
+       event PathFind #FINDX #FINDY #FINDZ
+       wait 1s
+       goto startLookingForForge
+    }
+    set %nForgeId #findId
+    set %nForgeX #findX
+    set %nForgeY #findY
+
+startLookingForOre:
+    gosub sleepIfOffline
+    
+    finditem DWJ_TVJ_EWJ_GWJ  C
+    if #findkind = -1
+    {
+       event SysMessage all ore smelted
+
+        if %bStopAfterUnload == #true
+           return
+
+       event PathFind %nPosBeforeSmeltingX %nPosBeforeSmeltingY %nPosBeforeSmeltingZ
+       wait 1s
+       return
+    }
+    set #lObjectId #findId
+    set #lTargetKind 1
+    set #lTargetId %nForgeId
+    event macro 17 0 ;lastobject, use ore
+    target 5s
+    event Macro 22 0 ;last target
+    wait 1s
+
+goto startLookingForOre
+
+return ; ----------------------------------------
+
+sub mineOneTile  ;------------ mineOneTile
+startMineOneTile:
+
+   gosub sleepIfOffline
+
+  finditem TWF_WWF_QPF_NPF C
+  if #findkind = -1
+  {
+     gosub createMiningTool
+     goto startMineOneTile
+  }
+  set #lObjectId #findId
+  event macro 17 0 ;last object
+  tile Init
+  Tile Get #CharPosX #CharPosY 2
+  set #lTargetTile #tileType
+  set #lTargetX #charPosX
+  set #lTargetY #charPosY
+  set #lTargetZ #charPosZ
+  set #lTargetKind 3
+  target 5s
+  event Macro 22 0 ;last target
+return ; ----------------------------------------
+
+sub createMiningTool  ;---------------- createMiningTool
+
+TryCreateAgain:
+
+    gosub sleepIfOffline
+
+    ;event macro 8 7 ; open backpack
+    ;wait 10
+
+    event SysMessage creating tools...
+    findItem KTL_JTL_MTL_LTL C ;Tinkertool
+    if #findKind = -1
+    {
+        if %bTryingMakeToolAgain = #true
+           gosub zHalt no TinkerTool
+           
+        event macro 8 7 ; open backpack
+        wait 3s
+        event macro 8 7 ; open backpack
+        wait 3s
+        set %bTryingMakeToolAgain #true
+        goto TryCreateAgain
+    }
+    set %bTryingMakeToolAgain #false
+    set %nIdTinkerTool #findId
+    set %nTinkerToolCount #findCnt
+
+    finditem ENK_RMK C ;Ingots
+    if #findKind = -1
+       gosub ZHalt no ingots for tinkertool
+
+    set #lObjectId %nIdTinkerTool
+    event macro 17 0 ;last object
+    
+waitForGump:
+     if #contName <> generic_gump
+     {
+        sleep 50
+        goto waitForGump
+     }
+     gosub zGumpClickMenu 3
+     wait 1s
+     
+     if %nTinkerToolCount = 1
+     {
+        event SysMessage creating tinkertools...
+        gosub zGumpClickItem 4
+        wait 2s
+     }
+     else
+     {
+         event SysMessage creating shovel...
+         gosub zGumpNextPage
+         wait 1s
+         gosub zGumpClickItem 1
+         wait 2s
+     }
+
+     gosub zGumpClose
+     wait 1s
+
+return  ; ----------------------------------------
+
+
+; *******************************************************************
+
+sub zInit ;------------ zInit
+
+    gosub sleepIfOffline
+
+    set %zScriptName ZsMiningV1.9
+    initEvents
+    event SysMessage starting script %zScriptName ...
+return
+
+sub zHalt ;------------ zHalt <text> if text contains spaces, limit is 10 params
+    gosub zParamsToVar sAllParams %1 %2 %3 %4 %5 %6 %7 %8 %9 %10
+    set %sMsg stopping , #spc ,  script , #spc ,  %zScriptName , #spc , %sAllParams
+    event SysMessage  %sMsg
+    display ok %sMsg
+    halt
+return
+
+sub zParamsToVar ;------------ zParamsToVar
+    namespace local zParamsToVar
+    if %0 <= 1 || %2 = n/a ;no parameters -> return a space
+    {
+       set % . %1 #spc
+       return
+    }
+
+    set %tempAll %2
+
+    for %nParam 3 %0
+    {
+        if ! ( % . %nParam = n/a )
+        {
+         set %currentParameter % . %nParam
+         set %currentAll %tempAll  , #spc
+         set %tempAll %currentAll , %currentParameter
+        };if !n/a
+    };for each parameter
+
+    set % . %1 %tempAll
+
+    for %n 1 20
+    {
+        set % , %n
+    };for
+
+return
+
+sub zGumpClickMenu
+    set %nMenuX #contPosX + 30
+    set %nMenuY #contPosY + 70 + ( %1 - 1 ) * 20
+    click %nMenuX %nMenuY
+return
+
+sub zGumpClickItem
+    set %nMenuX #contPosX + 230
+    set %nMenuY #contPosY + 70 + ( %1 - 1 ) * 20
+    click %nMenuX %nMenuY
+return
+
+sub zGumpClose
+    click #contPosX #contPosY r
+return
+
+sub zGumpNextPage
+    set %nMenuX #contPosX + 380
+    set %nMenuY #contPosY + 270
+    click %nMenuX %nMenuY
+return
+
+sub estimateDistance
+    set %nDistX %1 - #charPosX
+    if %nDistX < 0
+       set %nDistX  %nDistX * -1
+    set %nDistY %1 - #charPosY
+    if %nDistY < 0
+       set %nDistY  %nDistY * -1
+    if %nDistX > %nDistY
+       return %nDistX
+    else
+        return %nDistY
+return
+
+sub zMove
+
+    if %bMove = #false
+       return
+
+MoveStart:
+
+    set %xTarget #charposX
+    set %yTarget #charposY
+
+    set %nInc #random % 5
+    set %nDirection #random % 2
+    if %nDirection = 1
+       set %nInc %nInc * -1
+    set %xTarget %xTarget + %nInc
+
+
+    set %nInc #random % 5
+    set %nDirection #random % 2
+    if %nDirection = 1
+       set %nInc %nInc * -1
+    set %yTarget %yTarget + %nInc
+
+    set %bTargetIsCave #false
+    
+    tile Init
+    tile Get %xTarget %yTarget 1
+    if ( #tileType >= 556 && #tileType < 600 )
+       set %bTargetIsCave #true
+
+    if %bTargetIsCave = #true
+    {
+      event pathFind %xTarget %yTarget
+      wait 1s
+    }
+    else
+    {
+     ;event SysMessage bad location selected, reselecting...
+     ;event SysMessage x: %xTarget "---" y: %yTarget
+     wait 5
+     goto MoveStart
+    }
+    
+    gosub stonesToStoneWorkerKey
+
+return
+
+sub checkStatusBar
+    if ( #weight <> n/a )
+       return
+
+       display OK You have to have your status bar open (where you see the 3 bars for health/mana/stamina)
+       gosub zHalt You have to have your status bar open
+    
+return
+
+sub zTeleportBankUnloadTeleportMine ;-----------zTeleportBankUnloadTeleportMine
+
+    gosub sleepIfOffline
+
+    gosub zTeleport *ZsM_sTeleportType *ZsM_RecallItem1
+
+    msg bank$
+    wait 5s
+    msg bank$
+    wait 5s
+    msg bank$
+    wait 5s
+    set %idBank #contId
+    
+    if #contId = #backpackid
+    {
+       Display ok Container is not the bankbox, something went wrong
+       gosub zHalt (container is not bankbox)
+    }
+
+startLookingForIngots:
+    gosub sleepIfOffline
+    
+    finditem %ingotTypes  C_ , #BACKPACKID
+    if #findkind = -1
+    {
+         event SysMessage no more ingots in backpack
+
+        ; get some iron ingots back, for creating tools
+        ;finditem RMK_CNK_BNK_ENK_DNK_YMK  C_ , %idBank
+        finditem ENK_RMK  C_ , %idBank
+        if #findkind <> -1
+        {
+            set %nIngotStackCount #findcnt
+            for %nIndexStack 1 %nIngotStackCount
+            {
+               finditem ENK_RMK %nIndexStack C_ , %idBank
+               if #findcol = 0
+               {
+                  event SysMessage found #findstack ingots in bankbox
+                  set %nCount #findstack
+                  if %nCount > 50
+                     set %nCount 50
+                  event SysMessage taking %nCount ingots...
+                  exevent drag #findid %nCount
+                  wait 20
+                  exevent dropc #BACKPACKID
+                  wait 20
+                  goto afterIngotsFromBankToBackpack
+               } ; if iron
+            } ; for ingot stacks in bankbox
+        } ; if ingot stacks
+        afterIngotsFromBankToBackpack:
+
+        if %bStopAfterUnload == #true
+           gosub zHalt (stop requested via hotkey)
+
+         gosub zTeleport *ZsM_sTeleportType *ZsM_RecallItem2
+         return
+    }
+    exevent drag #findid #findstack
+    wait 20
+    exevent dropc %idBank
+    wait 20
+
+goto startLookingForIngots
+
+return ;-----------zTeleportBankUnloadTeleportMine
+
+sub zTeleport ;------------------- zTeleport
+gosub sleepIfOffline
+event sysmessage TELEPORT
+  if %1 = n/a
+  {
+     Display ok teleport-type has not been set
+     gosub zHalt teleport-type has not been set
+  }
+  if %2 = n/a
+  {
+     Display ok teleport-item has not been set
+     gosub zHalt teleport-item has not been set
+  }
+
+    set %nBeforeX #charPosX
+    set %nBeforeY #charPosY
+
+tryingToTeleport:
+
+    set #lTargetKind 1 ;object
+    set #lTargetId %2
+
+    if %1 = "Recall"
+    {
+       event SysMessage recalling...
+       event macro 15 31
+       target 5s
+       event macro 22 0 ; last target
+    }
+    else
+    {
+        if %1 = "SacredJourney"
+        {
+           event SysMessage SacredJourney...
+           event macro 15 210
+           target 5s
+           event macro 22 0 ; last target
+        }
+        else
+        {
+         Display ok Error in setup (1)
+         gosub zHalt (error in setup/1)
+        }
+    }
+
+    wait 3s ; teleport has to happen, perhaps
+
+    if %nBeforeX = #charPosX && %nBeforeY = #charPosY
+    {
+       wait 5s
+       goto tryingToTeleport
+    }
+
+return  ;------------------- zTeleport
+
+
+sub zTeleportBankUnloadStop ; ---------------- zTeleportBankUnloadStop
+    event sysmessage "****** hotkey !!!*******"
+    set %bStopAfterUnload #true
+    gosub smelting
+    gosub zTeleportBankUnloadTeleportMine
+    gosub zHalt (request via hotkey)
+return ; ---------------- zTeleportBankUnloadStop
+
+sub sleepIfOffline
+sleepCheck:
+    if #clilogged = 0
+    {
+       event sysmessage Offline...waiting...
+       wait 30s
+       goto sleepCheck
+    }
+
+return
+
+sub setupStoneWorkerKey
+    finditem %StoneWorkerKeyTypes C_ , #BackPackId
+    if #findKind = -1
+       return
+    set %nKeyCount #findCnt
+    for %nKeyIndex 1 %nKeyCount
+    {
+       finditem %StoneWorkerKeyTypes %nKeyIndex C_ , #BackPackId
+       if #findcol = 1161
+       {
+          set %IdStoneWorkerKeys #findId
+          event sysmessage Stoneworker Keys found
+       }
+    }
+return
+
+sub stonesToStoneWorkerKey
+
+    if %IdStoneWorkerKeys = n/a
+       return
+
+lookingForStones:
+    finditem %StoneTypes C_ , #BackPackId
+    if #findKind <> -1 ; found stones inside backpack
+    {
+       set %IdStone #findId
+       set #lObjectId %IdStoneWorkerKeys
+       event macro 17 ; use last object, use keys
+       wait %nWait
+       wait %nWait
+       wait %nWait
+       wait %nWait
+
+       set %x #contPosX + 295
+       set %y #contPosY + 240
+       click %x %y mc
+       wait %nWait
+
+       set #lTargetKind 1 ; object
+       set #lTargetId %IdStone
+       event Macro 22 0 ;last target
+       wait %nWait
+
+       set %x #contPosX + 50
+       set %y #contPosY + 50
+       click %x %y r
+       wait %nWait
+
+       goto lookingForStones
+    } ; if stones found
+
+return

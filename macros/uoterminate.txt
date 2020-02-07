@@ -1,0 +1,4 @@
+if #mana >= 25
+{
+   terminate uo
+}

@@ -1,0 +1,474 @@
+set %painettu #false
+set %orig.lobjectid #lObjectID
+set %run #false
+set %tack 0
+set %tick 0
+set %NewEmote
+set %OldEmote
+set %NewSysMessage
+set %OldSysMessage
+set %default_sys_color #sysmsgcol ;tallennetaan default sys message väri
+set %command 0
+set %food_type HND_ZBG 1
+set %show_navigator #false
+set %timer 0
+;#####################ASETUKSET####################
+;!!HUOM!! NÄITÄ KANNATTAA SÄÄTÄÄ IHAN ITSE !!HUOM!!
+;##################################################
+set %show_npc_names #false ;näyttää NPCiden nimet ruudulla kokoajan
+
+set %polina #false ;heittelee emotea sun muuta trueksi jos haluat näkyviin
+set %alarm #false ;varoitus viestit(kaikki) Trueksi jos haluat näkyviin
+
+set %2Tweapon #true ;jos kaytat 2 tilen asetta
+set %1Tweapon #false ;jos kaytat 1 tilen asetta
+
+set %health_alarm #false ;jos haluat health alarmin näkyviin HUOM jos alarm=false mikään alarmi ei näy
+set %hungry_alarm #true  ;jos haluat nälkä alarmin näkyviin
+set %mana_alarm #false   ;jos haluat mana alarmin näkyviin
+
+set %auto_eat #true
+set %auto_bandage #false
+set %auto_meditate #false
+set %auto_drag #false
+
+set %auto_re_un_eguip_in_potion #true
+set %auto_re_un_equip_in_meditation #false
+set %auto_re_un_eguip_in_cast #false
+
+set %auto_looter #false
+
+set %HP_ 60 ;hp jonka jälkeen varoitus viesti pärähtää ilmoille/auto_bandage
+set %HU_ 6 ;nälkä leveli jonka jälkeen alkaa valittamaan/syömään
+set %MA_ 20 ;mana levelli
+
+set %Sys_Msg_Wait 200 ;10 sekunttia 1 Tick = 50 millisekunttia
+set %Emote_Wait 1200
+;################ASETUKSET LOPPUU####################
+;####################################################
+
+;version tarkistus
+if #EUOVER < 1_50_00 && %run = #false
+{
+   display okcancel Macro tehty EUO versiolla 1.50 päivitä EUO tai paina OK jatkaaksesi
+
+   if #dispres = OK
+   {
+       set %run #true
+       event sysMessage Kiitos #charname etta valitsit helperin (mhelp) saat listan komennoista
+   }
+
+   if #dispres = CANCEL
+   {
+       HALT
+   }
+}
+else
+{
+    set %run #true
+    event sysMessage Kiitos #charname etta valitsit helperin (mhelp) saat listan komennoista.
+}
+
+;main loop
+while %run = #true
+{
+      ;event sysMessage %command %show_navigator
+      ;botskin komennot vain kaytössä jos ollaan piirretty nappulat
+      if %show_navigator = #true ;VAATINEE VIELÄ HIENOSÄÄTÖÄ VÄHÄN RAAKA MALLI
+      {
+         if #menubutton = Eteenpäin && %painettu = #false
+         {
+            set %viesti Eteenpäin
+            set %painettu #true
+         }
+         if #menubutton = Täyttä && %painettu = #false
+         {
+            set %viesti Täyttä
+            set %painettu #true
+         }
+         if #menubutton = Eteenpäin_vasemmalle && %painettu = #false
+         {
+            set %viesti Eteenpäin , #spc , vasemmalle
+            set %painettu #true
+         }
+         if #menubutton = Eteenpäin_oikealle && %painettu = #false
+         {
+            set %viesti Eteenpäin , #spc , oikealle
+            set %painettu #true
+         }
+         if #menubutton = Oikealle && %painettu = #false
+         {
+            set %viesti Oikealle
+            set %painettu #true
+         }
+         if #menubutton = Vasemmalle && %painettu = #false
+         {
+            set %viesti Vasemmalle
+            set %painettu #true
+         }
+         if #menubutton = Paapuuriin && %painettu = #false
+         {
+            set %viesti Paapuuriin
+            set %painettu #true
+         }
+         if #menubutton = Tyyrpuuriin && %painettu = #false
+         {
+            set %viesti Tyyrpuuriin
+            set %painettu #true
+         }
+         if #menubutton = Taaksepäin_vasemmalle && %painettu = #false
+         {
+            set %viesti Taaksepäin , #spc , vasemmalle
+            set %painettu #true
+         }
+         if #menubutton = Taaksepäin && %painettu = #false
+         {
+            set %viesti Taaksepäin
+            set %painettu #true
+         }
+         if #menubutton = Taaksepäin_oikealle && %painettu = #false
+         {
+            set %viesti Taaksepäin , #spc , oikealle
+            set %painettu #true
+         }
+         if #menubutton = Laske_ankkuri && %painettu = #false
+         {
+            set %viesti Laske , #spc , ankkuri
+            set %painettu #true
+         }
+         if #menubutton = Täyskäännös && %painettu = #false
+         {
+            set %viesti Täyskäännös
+            set %painettu #true
+         }
+         if #menubutton = Nosta_ankkuri && %painettu = #false
+         {
+            set %viesti Nosta , #spc , ankkuri
+            set %painettu #true
+         }
+         if #menubutton = Seis && %painettu = #false
+         {
+            set %viesti Seis
+            set %painettu #true
+         }
+         if #menubutton = Closed         ;ikkuna suljettu
+         {
+           menu clear                    ;puhistetaan
+           set %show_navigator #false    ;alustetaan
+           set %command empty
+           set #menubutton N/A
+           set %painettu #false
+           set %viesti 0
+         }
+         if %painettu = #true
+         {  ;joka komennon jalkeen nappula N/A:ksi
+         event macro 1 0 %viesti
+         set %painettu #false
+         set #menubutton N/A
+         }
+      }
+
+      while %command = pause
+      {
+            goto JOURNALSCAN ;loopataan journalscannissa
+      }
+      
+      if %command = drag
+      {
+
+      }
+      
+      if %command = boat && %show_navigator = #false ;näytetään namiskat kun saadaan .boat
+      {
+         menu Clear
+         menu Activate main
+         ;menu HideEUO
+         menu Window Size 100 110
+         menu Window Title Perämies
+         menu Window Color black
+         menu Font BGColor skyblue
+         menu Font Color black
+         menu Font Style b
+         menu Font Size 10
+         menu Font Name Arial
+         menu Button Täyttä 25 5 60 20 Täyttä
+         menu Font Name Wingdings
+         menu Button Eteenpäin_vasemmalle 25 25 20 20 ã
+         menu Button Eteenpäin 45 25 20 20 á
+         menu Button Eteenpäin_oikealle 65 25 20 20 ä
+         menu Button Paapuuriin 5 45 20 20 Å
+         menu Button Vasemmalle 25 45 20 20 ß
+         menu Button Seis 45 45 20 20 û
+         menu Button Oikealle 65 45 20 20 à
+         menu Button Tyyrpuuriin 85 45 20 20 Æ
+         menu Button Taaksepäin_vasemmalle 25 65 20 20 å
+         menu Button Taaksepäin 45 65 20 20 â
+         menu Button Taaksepäin_oikealle 65 65 20 20 æ
+         menu Button Laske_ankkuri 5 85 20 20 G
+         menu Button Täyskäännös 45 85 20 20 ô
+         menu Button Nosta_ankkuri 85 85 20 20 H
+         menu show
+         set %show_navigator #true
+      }
+
+
+      if #hits > %HP_  && %healing = #true ; jos hp:t enemman kuin HP_ healingi falseksi TARVITSEE LISÄÄ LOGIIKKAA!!HUOM!
+      {               ;esm mitä jos healingi epäonnistuu? journalscannia tj tarvitaan
+         set %healing #false
+      }
+
+
+      if %health_alarm = #true && #hits < %HP_ || %health_alarm = #false && %auto_bandage = #true && #hits < %HP_
+      {
+         if %polina = #true
+         {
+            set %NewEmote vuotaa , #spc , pahasti , #spc , verta
+         }
+
+         if %health_alarm = #true && %alarm = #true
+         {
+            set %NewSysMessage VAROITUS , #spc , HP , #spc , ALHAINEN
+         }
+
+         if %auto_bandage = #true && #hits < %HP_ && %healing = #false
+         {
+            event Macro 1 0 .band me
+            set %healing %true
+         }
+      }
+      
+      if %hungry_alarm = #true && #luck > %HU_ || %auto_eat = #true && #luck > %HU_
+      {
+         if %polina = #true
+         {
+            set %NewEmote näyttää , #spc , nälkäiseltä
+         }
+         
+         if %hungry_alarm = #true && %alarm = #true
+         {
+            set %NewSysMessage VAROITUS , #spc , NALKA
+         }
+         
+         if %auto_eat = #true
+         {
+            set %hold_LObjectID #FindID
+            finditem %food_type C_
+            if #findkind = -1
+            {
+               event sysMessage ruokaa ei loytynyt repusta auto_eat asetettu falseksi ;jotain muuta tähän
+               set %auto_eat #false
+            }
+            set #LObjectID #FindID
+            wait 3s ;huono waitti hidastaa macron kulkua
+            event macro 17 0
+            scanjournal
+            if You_are_too_full_to_eat_that in #journal
+            {
+               event sysMessage olet liian taysi syodaksesi HU_ asetettu defaultiksi(21) ;jotakin voisi tähän myös
+               ;set %HU_ 21
+            }
+            set #LObjectID %hold_LObjectID
+         }
+      }
+
+
+      ;meditaatio tarkistus ettei meditoida turhaa 2x meditointi lopettaa meditoinnin
+      if #mana > %MA_ && %meditating = #true; tarkistus jos on manaa enemmän kuin maaratty maara meditointi asetetaan falseksi
+      {
+         set %meditating #false ;TARVITSEE LISÄÄ LOGIIKKAA!!HUOM! Journalscannia tarvitaan
+      }
+
+
+      if %mana_alarm = #true && #mana < %MA_ || %auto_meditate = #true && #mana < %MA_
+      {
+         if %polina = #true
+         {
+            set %NewEmote näyttää , #spc , heikolta
+         }
+         
+         if %mana_alarm = #true && %alarm = #true
+         {
+            set %NewSysMessage VAROITUS , #spc , MANA , #spc , VAHISSA
+         }
+         
+         if %auto_meditate = #true && %meditating = %false
+         {
+            if %auto_re_un_equip_in_meditation = #true
+            {
+            ;event macro 13 42 on meditaatio 24 1 disarm left 24 2 disarm right
+            ;NEEDS IMPLEMENTATION
+            ;uneguippaa
+            ;kayta taitoa meditoi
+            wait 10s ;tahan implementoidaan parempi systeemi
+            }
+            else
+            {
+                event macro 14 46 ;meditoidaan
+                set %meditating #true ;ollaan meditoimassa
+            }
+         }
+      }
+
+      if %auto_re_un_eguip_in_potion = #true ;parannus UUF virkistys ZUF heikko räjähde TUF
+      {
+      set %OLDLOBID #LOBJECTID
+      set %LOBTYPE #LOBJECTTYPE
+         if %LOBTYPE = UUF || %LOBTYPE = ZUF || %LOBTYPE = XUF    ;kaikki juotavien pottujen tyypit tahan liian purkka
+         {
+            if %OLDLOBID <> %NEWLOBID
+            {
+               set %NEWLOBID #LOBJECTID
+               if %2Tweapon = #true ;jos kahen käden ase kädes
+               {
+                  event macro 24 1
+                  wait 2s
+                  event macro 17 0
+                  set #LTargetKind 1
+                  event macro 22 0
+                  wait 2s
+                  event macro 24 1
+               }
+            
+               if %1Tweapon = #true ; jos yhen käden ase kädes
+               {
+                  event macro 24 2
+                  wait 1s
+                  event macro 17 0
+                  set #LTargetKind 1
+                  event macro 22 0
+                  wait 1s
+                  event macro 24 2
+               }
+            }
+         }
+      }
+      
+      if CASTITAAN SPELLI && %auto_re_un_eguip_in_cast = #true
+      {
+         ;NEEDS IMPLEMENTATION
+         ;uneguipataan
+         ;odotellaan etta saadaan targetti
+         ;eguipataan kun targetti lahtee
+      }
+
+      if %show_npc_names = #true
+      {
+      wait 1 ;joku parempi timer ehkä koneen ajasta millisekunnit HIDASTAA macron kulkua huono homma
+      set %timer %timer + 1
+      event sysMessage %timer
+          if %timer = 8
+          {
+             event macro 21 ;ei näytä kaikkia NPCITÄ!
+             set %timer 0
+          }
+      }
+      
+      ;polina/varning message systeemi alkaa
+      if %polina = #True || %alarm = #true ;mita tehdaan jos polina/alarm true
+      {
+      wait ;50 millisekunnin waitti
+
+      if %polina = #true
+      {
+         if %Tack = 0 ;Takit menny
+         {
+            if %OldEmote = %NewEmote ;jos old emo on sama kun new emo
+            {
+               set %Tack %Emote_Wait ;ei tehä mitaa asetetaan minuutti
+            }
+
+
+            if %oldEmote <> %NewEmote ;jos vanha on eri kun uusi
+            {
+               event macro 2 0 %newEmote ;sanotaan emote
+               set %OldEmote %NewEmote   ;vanha emo on uusi emo
+               set %Tack %Emote_Wait ;asetetaan minuutti laskuriin
+            }
+         }
+         
+         if %tack > 0
+         {
+            event sysMessage miinustettu tak= %tack
+            set %tack %tack - 100
+         }
+       }
+       
+       if %alarm = #true
+       {
+         if %Tick = 0
+         {
+            if %oldSysMessage = %NewSysMessage
+            {
+               set %Tick %Sys_Msg_Wait
+            }
+
+            if %oldSysMessage <> %NewSysMessage
+            {
+               set #sysmsgcol 234 ;punainen sysmessage
+               event sysMessage %NewSysMessage
+               set %oldSysMessage %NewSysMessage
+               set %Tick %Sys_Msg_Wait
+               set #sysmsgcol %default_sys_color ;takas defaultiksi
+            }
+          }
+       }
+       
+       if %tick > 0
+       {
+          event sysMessage miinustettu TICK= %tick
+          set %tick %tick - 100
+       }
+      }
+      ;polina/varning message systeemi loppuu
+
+
+
+      
+JOURNALSCAN:
+      scanjournal
+      if .mhelp in #sysmsg
+      {
+         event SysMessage Komennot: .[komento] Boat Drag ListItems FairyTail Loot_[ITEM ID][TRUE/FALSE] Toggle[auto_hungry][On/Off] Wood Pickup[On/Off] Pickup[id][True/False] pause showNPC ;listataan kaikki komennot
+      }
+      if .boat in #sysmsg
+      {
+         set %command boat
+         deleteJournal
+      }
+
+      if .Drag in #sysmsg
+      {
+         set %command drag
+         deleteJournal
+      }
+
+      if .Pause in #sysmsg
+      {
+         set %command pause
+         deleteJournal
+      }
+                
+      if .UnPause in #sysmsg
+      {
+         set %command UnPause
+         deleteJournal
+      }
+      
+      if .showNPC in #sysmsg
+      {
+         set %show_npc_names #true
+         deleteJournal
+      }
+      
+                
+
+
+
+}
+
+
+
+
+
+
+

@@ -1,0 +1,6 @@
+if #mana < 27
+{
+key f10
+wait 15s
+}
+

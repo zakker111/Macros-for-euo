@@ -1,0 +1,7 @@
+if #hits < 87
+{
+key f9
+wait 5s
+}
+wait for target
+

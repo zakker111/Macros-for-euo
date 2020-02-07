@@ -1,0 +1,1860 @@
+;==================================
+; Script Name:  Papuas Wall Runebook Mining
+; Author: Papua
+; Version: 5.3
+; Client Tested with: 4.06a
+; EUO version tested with: 
+; Shard OSI  
+; Revision Date: 26.11.2004 
+; Public Release: 2003
+; Global Variables Used: 
+; Purpose: automated mining at mountains (a full runebook)
+;==================================
+LinesPerCycle 500
+;PEASE READ THE INSTRUCTIONS BELOW!!!!
+;#### PURPOSE: ####
+;Strip Mining, all automated, no manual setup at all
+;YOU NEED:
+;  uo set to english language
+;  a bonded beetle (if not bonded set notbonded to 1)
+;  a secure container at stairs of your house where you can recall to (rune 1)
+;  a bag in your secure container (ore gets in)
+;  a bag in your beetlebackpack
+;  many shovels direct in your secure container (faster then making shovels when needed)
+;  many recall regs direct in your secure container (Pearls, Blodmoss, Mandrake)
+;  some recall regs in backpack( not in a sub bag!!)
+;  enough iron direct in your secure container (for shovel making)
+;  one tinker tool in backpack (if your miner can make shovels..>50 tinker)
+;  a runebook with rune to your secure Chest as FIRST RUNE and rest nice mining spots
+;  ALLOW EXECUTE ON in Option Configuration (to write the book files)
+;  best use "dont move Cursor" on
+
+;#### HOW IT WORKS ####
+;best put the script in an own folder
+; on first run (full setup) the script writes a PAPSETUP.TXT.
+; full setup only needed if beetle, beetlebag, secure container or bag in secure container changes (or there was a patch?)
+;if you visit a mining spot the first time, it digs a lot (all possibilities).
+;DONT CARE!! It saves the succesful spots in a file with the name of your runebook id
+;next time he only digs the spots where he found ore :-)
+;you may edit the runebook files. Especially delte a full runes section if someone else mined the spot or you had to flee enemys
+;if you drop runes from runebook, your runebook file is corrupt, you need to DELETE IT
+;if you get attacked or a red PC is in sight, script tries to recall home , i recommend you cast "protection on"
+;look some lines down if you have Win98 /ME and make a ; before set %comand1 cmd
+
+;mining spots can be at mountains or caves. 
+;This script especially works good at mountain spots (lot of cave scripts around..)
+
+; to mark good runes try Cyberpopes Mining Radar. If you mark a rune wisely, you can di up to 4 spots at one place
+
+;#### History
+;5.3 New logic in fighting , recalling enemys.
+;       If you want to interact manually, Press Pause button, otherwise script sure will bugger you up
+;5.2 PLS DELETE ALL YOUR RUNEBOOK FILES, NEW SPOT FINDING WILL GIVE YOU A BETTER ONE
+;       should now find all mining spots, and that faster at first time writing a runebook
+;       problem with runebook opening on wrong position solved (cant recall bug)
+;       small delay after filling beetle to avoid cou cant..... 
+;       you maybe can get lot of cannot see on first run, dont bother
+;       more flexibel delay after mining, making it more lag independent at mining
+;5.1 removed last #contind, should now also work after a patch :-)
+;       tweaked drag drop, Beetle fights minor monsters as rats, mongbats
+;5.0 stand alone script without Lexia needed!! damned fast!
+;4.2 faster and more clever checking of mineable spots at first use of runebook
+;4.1 detect red npc and ignore them
+;4.0 more mineable spots checked, but also more clever check (faster at first time)
+;       alex subs now in #PATHLIB Path assumed
+;3.1 now restarts if all runes done
+;3.2 refill regs
+
+
+;####### Please edit if needed #########
+;--- if win 98/ME !!!!!!!!
+set %comand1 command
+;--- if win NT/2000/XP  !!!!!!!!
+set %comand1 cmd
+
+;if beetle not bonded set to 1
+set %notbonded 0
+
+;1=magery recall, 2=chivalry, 3=with scrolls in book
+set %recalltype 1
+
+;number of shovels you carry
+set %anzschaufeln 4
+;if you have problems trie to increase the delays!!!!!!
+;14 - 15 - 8 - 1 - 25 - 200 is standard
+set %miningdelay 12
+set %backpackdelay 15
+set %dropdelay 8
+set %dragdelay 1
+set %mylinesPerCycle 25
+set %uncriticallinesPerCycle 200
+
+;this types are fightable by the beetle
+set %schlagbar TD_BE_QE_WG
+
+;---- no need to change anything further down------
+;set %menucontkind KJCB
+set %schaufeln WWF
+set %ore TVJ_DWJ_EWJ_GWJ
+set %humankind HS_IS
+set %pearls KUF
+set %mandrake MZF
+set %bloodmoss JUF
+set %tinkertool JTL
+set %iron ENK
+set %mineable _223_556_557_558_559_561_228_227_222_231_226_221_229_563_568_569_570_571_565_562_
+
+;### SETUPEND ###
+
+
+tile init
+InitEvents
+LinesPerCycle %mylinesPerCycle
+
+gosub mining_setup
+
+gosub menustart
+set #menubutton N/A
+set %text Script_starts
+gosub nachricht
+
+ignoreitem reset
+;open small status bar
+gosub  smallStatusBar 650 10
+;open backpack
+gosub backpack_open 770 20
+
+set %umladegewicht #MAXWEIGHT - 40
+set %maxbeetleweight 80
+
+set %allme 0
+
+gosub askbutton
+;##ask for the runebook
+display yes Please click your Runebook (Secure container at Spot 1)
+set #TargCurs 1
+rune_wait01:
+gosub askbutton
+if #TargCurs = 1
+       goto rune_wait01
+set %book #LTARGETID
+wait 15
+finditem %book
+if #findkind <> 0
+{
+   msg NO_BOOK_FOUND,HALTED
+   halt
+}
+gosub askbutton
+gosub load_book
+gosub askbutton
+set %daheim 0
+gosub beetle_absteigen
+wait 20
+gosub Recall %book 1
+
+START:
+gosub askbutton
+gosub restocke
+set %beetleweight 0
+set %feinde 0
+set %akturune 1
+
+NEXTRUNE:
+  gosub askbutton
+  set %akturune %akturune + 1
+  if %akturune > 16
+        goto AUS
+  gosub gehemine %akturune
+  scanjournal 1
+  if THIS_PLACE_IN_THE_BOOK_IS_EMPTY in #Journal
+  {
+AUS:
+      gosub ablegen
+      set %text ALL_RUNES_DONE,RESTART
+      gosub nachricht
+      goto START
+  }
+  if %blocked = 1
+        goto NEXTRUNE
+
+  gosub graben
+  if %feinde = 1
+  {
+       msg $all follow me$
+       set %text ENEMYS_RECALL_HOME!
+       gosub nachricht
+
+       gosub ablegen
+       gosub restocke
+       goto NEXTRUNE
+  }
+   gosub beetle_packen 0
+   if %beetleweight < %maxbeetleweight   && *99 <> WRITE
+       goto NEXTRUNE
+
+    gosub ablegen
+    gosub restocke
+    goto NEXTRUNE
+halt
+
+;-----end main loop--------
+
+;##############################################
+: SUBS
+;##############################################
+
+####### digging
+sub graben
+{
+    set %digpoint 0
+    set %okpoint 3
+GRABGLEICH:
+    gosub askbutton
+    set %retart 0
+    gosub findpoint
+    if %digx > 55
+    {
+       set %text empty
+       gosub nachricht
+       gosub writerune_end
+       return
+    }
+    gosub grabe_punkt %digx %digy
+    if %feinde = 1
+       return
+     if %voll = 1
+     {
+        gosub ablegen
+        gosub restocke
+        gosub gehemine %akturune
+        goto GRABGLEICH
+     }
+     ;-- next digpoint
+     set %digpoint %digpoint + 1
+     goto GRABGLEICH
+     return
+}
+
+####### digging this point
+sub grabe_punkt
+{
+   gosub checkpoint
+   set %erstgrab 1
+   set %retx #charposx + %1
+   set %rety #charposy + %2
+   set %aa1 %1
+   set %aa2 %2
+   set %grabok 0
+
+    gosub sicher_hier
+    if %feinde = 1
+          return
+
+NOCHMAL1:
+    gosub askbutton
+    
+    deleteJournal
+    if %voll = 1
+         return
+    gosub sicher_hier
+    if %feinde = 1
+          return
+    gosub checkpoint
+    finditem %schaufeln C_ , %backpackid
+    set #LObjectID #FindID
+    event macro 17
+    set #LTargetX %retx
+    set #LTargetY %rety
+    set #ltargetz %digz
+
+    set #ltargetkind 2
+    set #ltargettile 1339
+    target
+    if #TargCurs = 0
+	goto NOCHMAL1
+   deleteJournal
+   event macro 22
+    wait %miningdelay
+   
+DIGNOTOK:
+     gosub askbutton
+     scanjournal 1
+     if WHERE_DO_YOU_WISH in #Journal
+        goto DIGNOTOK
+     if YOU_CANNOT_SEE in #Journal && *99 = WRITE && %digz <> #charposz
+    {
+	set %digz #charposz
+                goto NOCHMAL1
+    }
+
+     if THAT_IS_TO_FAR_AWAY in #Journal || YOU_CAN'T_MINE_THERE in #Journal || YOU_CANNOT_SEE in #Journal
+     {
+        if *99 = BOOK
+        {
+           set %loesche 1
+           set %text Loesche_Eintrag
+           gosub nachricht
+        }
+        set %retart 1
+        return
+     }
+     if NO_METAL_HERE in #Journal
+     {
+        gosub grid_hat_ore
+        set %retart 2
+        return
+     }
+     if YOU_MUST_WAIT_TO_PERFORM in #Journal
+         wait 1s
+     if YOU_DIG_SOME in #Journal
+     {
+         if %erstgrab = 1
+         {
+             set %grabok 1
+             set %erstgrab 0
+             gosub writerune
+         }
+     }
+     if #weight > %umladegewicht
+     {
+           gosub beetle_packen 0
+     }
+     goto NOCHMAL1
+}
+
+;###### Findpoint from Loaded Vars
+sub findpointrune
+{
+   gousb checkpoint
+
+   if *99 = WRITE
+      return
+   if *99 = START
+   {
+     for %i 1 16
+     {
+        set %ax %qrunex . %i
+        set %ay %qruney . %i
+        if %ax = #CHARPOSX && %ay = #CHARPOSY
+        {
+            set %momentrune  %i
+            set %text Known_Place
+            gosub nachricht
+            goto FINDFOUND
+        }
+     }
+     ;not found this place
+     set %text Not_Known_Place
+     gosub nachricht
+     set *99  WRITE
+     execute %comand1 /c echo #smc Rune: %akturune >> %file1
+     execute %comand1 /c echo set % , qrunex , %akturune  #CHARPOSX >> %file1
+     execute %comand1 /c echo set % , qruney , %akturune  #CHARPOSY >> %file1
+     return
+   }
+
+
+FINDFOUND:
+   set *99  KNOWN
+   set %h1 %momentrune , _ , %digpoint
+   set %digx %qspotx . %h1
+   set %digy %qspoty . %h1
+   set %digz %qspotz . %h1
+   return
+}
+
+
+sub load_book
+{
+   set %file1 %book , .txt
+   set %qthisbook 0
+   for %i 1 16
+   {
+       set %h1 %i , _0
+       set %qspotx . %h1 99
+   }
+   call %file1
+   if %qthisbook = %book
+       return
+   ;initialize
+   execute %comand1 /c echo set % , qthisbook  %book > %file1
+   execute %comand1 /c echo #smc >> %file1
+   for %i 1 16
+   {
+      set %qrunex . %i 0
+      set %qruney . %i 0
+   }
+ return
+}
+
+sub writerune
+{
+   if *99 = WRITE
+   {
+      gosub grid_hat_ore
+      execute %comand1 /c echo set % , qspotx , %akturune , _ , *2 %digx >> %file1
+      execute %comand1 /c echo set % , qspoty , %akturune , _ , *2 %digy >> %file1
+      execute %comand1 /c echo set % , qspotz , %akturune , _ , *2 %digz >> %file1
+      set *2 *2 + 1
+   }
+   return
+}
+
+sub writerune_end
+{
+   if *99 = WRITE
+      execute %comand1 /c echo set % , qspotx , %akturune , _ , *2 99 >> %file1
+   return
+}
+
+;###### Findpoint
+sub findpoint
+{
+    set %momentx 0
+     set %momenty 0
+    gosub findpointrune
+    if *99 = KNOWN
+              return
+   LinesPerCycle %uncriticallinesPerCycle
+   if %digpoint = 0
+   {
+       set %chargridx #charposx / 8
+       set %chargridy #charposy / 8
+       for %c 1 9
+       {
+          set %erfolgtile , %c 0
+       }
+   }
+FINO3:
+   gosub get_coord
+   if %digx > 33
+   {
+       LinesPerCycle %mylinesPerCycle
+       return
+   }
+
+;--senseful (mountain, cave....)
+   set %retx %digx + #charposx
+   set %rety %digy + #charposy
+   gosub checke_sinnvoll
+   if %sinnvoll = 0
+   {
+        set %digpoint %digpoint + 1
+        goto FINO3
+   }
+
+;--in diesem grid schon was gefunden --> probier anderes grid (9 grids)
+   gosub get_grid_number
+   set %hilf1 %erfolgtile . %actual_grid
+   if %hilf1 = 1
+   {
+        set %digpoint %digpoint + 1
+        goto FINO3
+   }
+   LinesPerCycle %mylinesPerCycle
+   return
+}
+
+sub get_coord
+{
+    set %digz #charposz
+    if %digpoint = 0
+    {
+       set *2 0
+       set %globaldigx -4
+       set %globaldigy -4
+       set %digx -4
+       set %digy -4
+       return
+    }
+    set %globaldigx %globaldigx + 1
+    if %globaldigx > 4
+   {
+       set %globaldigx -4
+       set %globaldigy %globaldigy + 1
+   }
+   set %digx %globaldigx
+   set %digy %globaldigy
+   if %digy > 4
+      set %digx 99
+   return
+}
+
+  ;checke ob der Punkt sinnvoll ist (%retx,%rety,%digz)
+sub checke_sinnvoll
+{
+   ;set %sinnvoll 1
+   ;return
+    if *99 = KNOWN
+    {
+         set %sinnvoll 1
+         return
+    }
+   set %sinnvoll 0
+   tile get %retx %rety 1
+   set %check_type _ , #TileType , _
+    if %check_type in %mineable
+        set %sinnvoll 1
+   if #tilename = rock
+        set %sinnvoll 1
+   if #tilename = cave
+        set %sinnvoll 1
+  set %digz #tilez
+   ;deactivated
+   if %sinnvoll = 9
+   {
+         gosub lineOfSight #charposx #charposy #charposz %retx %rety %digz
+         if %_lineofsight = #false
+              set %sinnvoll 0
+    }
+    return
+}
+
+;### recall to mine %1
+sub gehemine
+{
+     gosub askbutton
+     set %text Recall_to_mine
+     gosub nachricht
+     set *99 START
+     gosub Recall %book %1
+
+     return
+}
+
+;#################################
+
+;### restock shovels, regs
+sub restocke
+{
+      gosub checke_beetle
+AA1:
+      gosub askbutton
+      ignoreitem reset
+      finditem %schaufeln C_ , %backpackid
+      set %myschaufel #findcnt
+      if %myschaufel <  %anzschaufeln
+      {
+          gosub restocke_schaufel
+          goto AA1
+      }
+      finditem %pearls C_ , %backpackid
+      if #findkind < 0 || #findstack < 15
+           gosub restock_regs %pearls 25
+      finditem %bloodmoss C_ , %backpackid
+      if #findkind < 0 || #findstack < 15
+           gosub restock_regs %bloodmoss 25
+      finditem %mandrake C_ , %backpackid
+      if #findkind < 0 || #findstack < 15
+           gosub restock_regs %mandrake 25
+      return
+}
+
+
+;### restock one shovel from your secure bag
+sub restocke_schaufel
+{
+     gosub askbutton
+     finditem %meinekisteid
+     if #findkind = -1
+     {
+        msg kiste?
+        gosub beetle_aufsteigen
+
+     }
+     ;open secure bag
+     gosub OpenContainerAt %meinekisteid 100 100
+
+     finditem %schaufeln C_ , %meinekisteid
+     if #findkind = -1
+     {
+        ignoreitem reset
+        set %text I_make_shovels
+        gosub nachricht
+        gosub shovel_make
+        return
+     }
+     gosub MoveItemToBackpack #findid 0
+     set %myschaufel %myschaufel + 1
+     wait %backpackdelay
+     return
+}
+
+;### restock regs %1=type %2=amount
+sub restock_regs
+{
+     gosub askbutton
+     set %_was1 %1
+     set %_menge1 %2
+     finditem %meinekisteid
+     if #findkind = -1
+     {
+        msg kiste?
+        gosub beetle_aufsteigen
+        halt
+     }
+     ;open secure bag
+     gosub OpenContainerAt %meinekisteid 100 100
+
+     finditem %_was1 C_ , %meinekisteid
+     if #findkind = -1
+     {
+        msg more regs needed!!
+        ignoreitem reset
+        gosub beetle_aufsteigen
+        halt
+     }
+     gosub MoveItemToBackpack #findid %_menge1
+     wait %backpackdelay
+     return
+}
+
+;########### shovelmake
+sub shovel_make
+{
+     gosub askbutton
+     ;test if tinker >=50
+     chooseskill TINK
+     if #skill < 500
+     {
+        set %text YOU_CANT_TINKER,HALTED
+        gosub nachricht
+        gosub beetle_aufsteigen
+        halt
+     }
+     finditem %tinkertool C_ , %backpackid
+     if #findkind < 0
+     {
+        set %text YOU_HAVE_NO_TINKERTOOL_AT_ALL,HALTED
+        gosub nachricht
+        gosub beetle_aufsteigen
+        halt
+     }
+     ;drag 18 iron in backpack 
+     gosub finde_eisen %backpackid
+     if %found < 18
+     {
+          gosub finde_eisen %meinekisteid
+          if %found < 18
+          {
+              set %text NO_IRON,HALTED
+              gosub nachricht
+              gosub beetle_aufsteigen
+              halt
+          }
+          gosub MoveItemToBackpack #findid 18
+     }
+     gosub askbutton
+     ;tinkertool?
+     finditem %tinkertool C_ , %backpackid
+     if #findcnt < 2
+     {
+        ;make 1 tinkertool and let it in backpack
+        gosub tinker_sub 2 4 #false
+     }
+     gosub askbutton
+     ;make 6 shovels
+     gosub tinker_sub 2 11 #false
+     for %i 1 4
+     {
+        gosub tinker_sub 0 0 #false
+     }
+     gosub tinker_sub 0 0 #true
+     return
+}
+
+;%1 is the bag to search iron
+sub finde_eisen
+{
+     set %found 0
+     ignoreitem reset
+findeisen01:
+     finditem %iron C_ , %1
+     if #findkind < 0
+          return
+      if #findcol <> 0
+     {
+        ignoreitem #findid
+        goto findeisen01
+     }
+     set %found #findstack
+     return
+}
+
+sub checkpoint
+{
+  
+   if #charposx = %shouldcharposx && #charposy = %shouldcharposy
+      return
+   set %merkzeit #time + 6
+   event pathfind %shouldcharposx %shouldcharposy #charposz 0 6s
+Wait87:
+    gosub sicher_hier
+    if %feinde = 1
+          return
+   if #charposx = %shouldcharposx && #charposy = %shouldcharposy
+      return
+   if #time > %merkzeit
+   {
+       set %feinde 1
+       return
+    }    
+    goto Wait87
+}
+
+;### recall home and put all ore from beetle in secure bag
+sub ablegen
+{
+     gosub askbutton
+     if %daheim = 1
+        goto ABL3
+     gosub Recall %book 1
+     if %blocked = 1
+     {
+        set %text home_rune_blocked_HALTED
+        gosub nachricht
+        gosub beetle_aufsteigen
+        halt
+     }
+  ABL3:
+     finditem %meinekisteid
+     if #findkind = -1
+     {
+        msg didnt find the secure bag,HALTED
+        gosub beetle_aufsteigen
+        halt
+     }
+    set #enemyid N/A
+    set %feinde 0
+     
+
+     gosub heile
+
+     gosub OpenContainerAt %meinekisteid 100 100
+     gosub wait_for_beetle
+     ;now drag the ore in bag in secure bag
+     set %beetleweight 0
+     set %voll 0
+     gosub OpenBeetlePack %meinbeetlepack 50 300
+     gosub OpenContainerAt %beetledropbag 320 320
+
+GGT1:
+     set %text Bunker_Ore
+     gosub nachricht
+     finditem %ore C_ , %beetledropbag
+     if #findkind = -1
+     {
+         ;against overloaded at home
+          set %hilf1 #maxweight - 100
+          if #weight > %hilf1
+                 gosub beetle_packen  0
+        ignoreitem reset
+        set %text Next_Rune
+        gosub nachricht
+        gosub askbutton
+        return
+     }
+     set %orecount %orecount + #findstack
+     gosub orezaehl
+     gosub MoveItemToClosedContainer #findid %dropbag 0
+     goto GGT1
+     return
+}
+
+;heal with greater heal when wounded
+sub heile
+{
+     set %hilf1 #maxhits - 15
+     if #hits < %hilf1
+     {
+	  event macro 15 28
+        target 2s
+        event macro 23 0
+        wait 15
+    }
+    return
+}
+
+sub orezaehl
+{
+	if #findcol = 0
+         set %o1 %o1 + #findstack
+	if #findcol = 2419
+         set %o2 %o2 + #findstack
+	if #findcol = 2406
+         set %o3 %o3 + #findstack
+	if #findcol = 2413
+         set %o4 %o4 + #findstack
+	if #findcol = 2418
+         set %o5 %o5 + #findstack
+	if #findcol = 2213
+         set %o6 %o6 + #findstack
+	if #findcol = 2425
+         set %o7 %o7 + #findstack
+	if #findcol = 2207
+         set %o8 %o8 + #findstack
+	if #findcol = 2219
+         set %o9 %o9 + #findstack
+
+      return
+}
+
+;### put ore from char to beetle
+;%1 amount
+sub beetle_packen
+{
+  gosub askbutton
+  gosub sicher_hier
+  if %feinde = 1
+         return
+  set %menge1 %1
+  set %voll 0
+  deleteJournal
+  finditem %beetledropbag
+  if #findkind < 0
+      gosub OpenBeetlePack %meinbeetlepack 250 300
+
+AT1:
+     gosub askbutton
+     gosub sicher_hier
+     if %feinde = 1
+         return
+
+     scanjournal 1
+     if THAT_CONTAINER_CANNOT_HOLD in #Journal
+     {
+         set %voll 1
+         if #weight >= #maxweight
+         {
+                set %menge1 2
+                goto Trotzdem01
+         }
+         return
+     }
+trotzdem01:
+     finditem %ore C_ , %backpackid
+     if #findkind = -1
+     {
+        ignoreitem reset
+        wait %dropdelay
+        return
+     }
+
+     set %beetleweight %beetleweight + #findstack
+
+     gosub MoveItemToClosedContainer #findid %beetledropbag %menge1
+     goto AT1
+     return
+}
+
+
+
+;### is it save hier (result:not save is %feinde=1, save is %feinde=0)
+sub sicher_hier
+{
+   ignoreitem reset
+   set %feinde 0
+   if #enemyid <> N/A
+   {
+     finditem #enemyid
+     if #findkind <> -1
+     {
+          if #finddist < 9
+          {
+             if #findtype in %schlagbar
+             {
+                 if #finddist < 3
+                     gosub kampf
+                 return
+             }
+             msg rrr
+             set %feinde 1
+          }
+     }
+   }
+   ;### try to flee of a PK	
+FINDHUMAN:
+  finditem %humankind
+   if #findkind = 1
+  {
+     set %merk3 #findid
+     if #findrep = 6 && #finddist < 11
+    {
+        gosub istNPC
+        if %npcja = 0
+       {
+           set %feinde 1
+           return
+       }
+     }
+     ignoreitem %merk3 4
+     goto FINDHUMAN
+   }
+   ;reset red NPC ignore, cause if they are fighter......
+   ignoreitem reset 4
+   gosub checke_beetle
+   gosub near_enemy
+   return
+}
+
+sub istNPC
+{
+  set %npcja 0
+  set %npcid #findid
+  finditem ZJF_KUD CA_ , %npcid
+  if #findcnt = 1 || #findkind = -1
+      set %npcja 1
+  return
+}
+
+sub kampf
+{
+set %kampfstart 1
+set %count5 0
+KAMPF01:
+    set %count5 %count5 + 1
+    gosub askbutton
+    ;is er tod oder weg?
+     finditem #enemyid
+     if #findkind < 0 || #findtype = YFM
+     {
+        msg $all stop$
+        wait 10
+        msg $all follow me$
+        wait 40
+        set %feinde 0
+        return
+     }
+     if #findtype in %schlagbar
+    {
+        if %kampfstart = 1 || %count5 > 100
+        {
+           set %count5 0
+           set %kampfstart 0
+           msg all guard me$
+           set #ltargetid #enemyid
+        }
+        gosub heile 
+        goto KAMPF01
+    }
+    set %feinde 1
+    return
+}
+
+sub near_enemy
+{
+   ignoreitem reset 6
+SCHL4:
+   finditem * G_3
+   if #findkind < 0
+   {
+       ignoreitem reset 6
+       return
+   } 
+   if #findrep > 3
+   {
+       set %feinde 1
+       return
+   }  
+   ignoreitem #findid 6
+   goto SCHL4
+   return
+}
+
+;######### Menu und Message Subs #########
+
+sub nachricht
+{
+    set %zeit #scnt2 - %starttime
+    set %min %zeit / 600
+    ;setuotitle Rune: %akturune  Ore: %orecount  Time: %min min       %text  ( %o1 %o2 %o3 %o4 %o5 %o6 %o7 %o8 %o9 )
+    gosub menumine
+    return
+}
+
+sub menumine
+{
+        menu delete FSTATUS
+        menu text FSTATUS 70 10 %text
+        menu delete FTIME
+        menu text FTIME 50 30 %min
+        menu delete FRUNE
+        menu text FRUNE 160 30 %akturune
+        menu delete FORE
+        menu text FORE 270 30 %orecount
+        menu delete FFARBIG
+        menu text FFARBIG 10 60 IR: %o1 DU: %o2 SH: %o3 CO: %o4 BR: %o5 GO: %o6 AG: %o7 VE: %o8 VA: %o9
+     return
+}
+
+sub menustart
+{
+menu window size 470 90
+        menu clear
+        menu window title Papua's Rune Book Mining
+        menu window color black
+        menu font bgcolor black
+        menu font color red
+        menu font size 9
+        menu font style BI
+        menu text MSTATUS 10 10 Status:
+        menu text MTIME 10 30 Time:
+        menu text MRUNE 120 30 Rune:
+        menu text MORE 230 30 Ore:
+        menu Button PAUSE 400 10 60 20 Pause
+        menu Button RESUME 400 40 60 20 Resume
+
+
+        menu show 200 30
+        menu hideeuo
+
+        set %starttime #scnt2
+        set %orecount 0
+        set %o1 0
+        set %o2 0
+        set %o3 0
+        set %o4 0
+        set %o5 0
+        set %o6 0
+        set %o7 0
+        set %o8 0
+        set %o9 0
+
+        return
+}
+
+sub askbutton
+{
+   if #menubutton = PAUSE
+   {
+      set %text PAUSED
+      gosub nachricht
+WAITENDLESS:
+       wait 15
+       if #menubutton = RESUME
+       {
+          set %text RESUME
+          gosub nachricht
+          return
+       }
+       goto WAITENDLESS
+   }
+   set #menubutton N/A
+   return
+}
+
+;######################
+sub get_grid_number
+{
+   set %adigx %digx + #CHARPOSX
+   set %adigy %digy + #CHARPOSY
+   set %adigx %adigx / 8
+   set %adigy %adigy / 8
+   set %xdif %chargridx - %adigx
+   set %ydif %chargridy - %adigy
+   set %xdif %xdif + 1
+   set %ydif %ydif + 1
+   set %actual_grid %ydif * 3
+   set %actual_grid %actual_grid + %xdif
+   set %actual_grid %actual_grid + 1
+   return
+}
+
+sub grid_hat_ore
+{
+    if *99 = KNOWN
+       return
+    gosub get_grid_number
+    if %actual_grid = N/A
+         return
+    set %erfolgtile , %actual_grid 1
+    return
+}
+
+;** 
+;* 
+;* Determine line of sight from one location to another. 
+;* 
+;* @purpose Determine line of sight from one location to another. 
+;* @author  ScriptFellow 
+;* @param   %1  startX  req  World start X-coordinate 
+;*          %2  startY  req  World start Y-coordinate 
+;*          %3  startZ  req  World start Z-coordinate 
+;*          %4  endX    req  World end X-coordinate 
+;*          %5  endY    req  World end Y-coordinate 
+;*          %6  endZ    req  World end Z-coordinate 
+;* @return  #result (#true or #false ) 
+sub lineOfSight
+{
+  nameSpace Push
+  nameSpace Local lineOfSight
+  set !x1 %1
+  set !y1 %2
+  set !z1 %3
+  set !x2 %4
+  set !y2 %5
+  set !z2 %6
+
+  set !z !z1 * 65536
+_lineOfSightLoop:
+  set !dx !x2 - !x1
+  set !dy !y2 - !y1
+  set !dz ( !z2 - !z1 ) * 65536
+
+  set !ax !dx / abs ( !dx )
+  set !ay !dy / abs ( !dy )
+
+  set !sx abs ( !dx )
+  set !sy abs ( !dy )
+
+  set !dz 0
+  if !sx > !sy
+  {
+    set !x1 !x1 + !ax
+    if !sx <> 0
+      set !dz !dz / !sx
+  }
+  else
+  {
+    set !y1 !y1 + !ay
+    if !sy <> 0
+      set !dz !dz / !sy
+  }
+  if !dz <> 0
+  {
+    set !zs !z / 65536
+    set !ze ( !z + !dz ) / 65536
+  }
+  else
+  {
+    set !zs !z1
+    set !ze !z2
+  }
+  if !zs > !ze
+  {
+    set !tmp !zs
+    set !zs !ze
+    set !ze !tmp
+  }
+  set !z !z + !dz
+
+  set %_lineOfSight #true
+  tile Cnt !x1 !y1 #cursKind
+  for !i 1 #tileCnt
+  {
+    tile Get !x1 !y1 !i #cursKind
+    if NoShoot in #tileFlags && ( #tileZ >= !zs && #tileZ <= !ze )
+    {
+      set %_lineOfSight #false
+      set !i #tileCnt
+    }
+    if NoShoot in #tileFlags && ( Surface NotIn #tileFlags || Roof NoIn #tileFlags )
+    {
+      set %_lineOfSight #false
+      set !i #tileCnt
+    }
+  }
+
+  if ( !x1 <> !x2 || !y1 <> !y2 ) && %_lineOfSight = #true
+    goto _lineOfSightLoop
+  nameSpace Clear
+  nameSpace Pop
+  return %_lineOfSight
+}
+
+
+;####################################
+;##### SETUP Routines
+;####################################
+sub mining_setup
+{
+   gosub askbutton
+   display yesno Full Setup (First Time) Needed?
+   if #dispRes = No
+   {
+      set %papsetupx 0
+      call PAPSETUP.TXT papsetup
+      if %papsetupx = 0
+      {
+         msg PAPSETUP_NOT_FOUND,HALTED
+         halt
+      }
+      return
+   }
+   gosub beetle_absteigen
+   ;##%meinbeetle
+   display yes Click your Beetle
+   set #TargCurs 1   
+init_wait01:
+   if #TargCurs = 1
+       goto init_wait01
+   set %meinbeetle #LTargetID
+   finditem %meinbeetle
+   ;##%meinbeetlepack
+  display yes open Beetle Backpack. Then Press DELETE / ENTF
+  init_wait02:
+  OnHotKey DELETE
+	 goto init_wait02_ok
+  goto init_wait02
+  init_wait02_ok:
+  set %meinbeetlepack #ContID
+
+   ;##%beetledropbag
+   display yes Now click the DROPBAG in your Beetlepack
+   set #TargCurs 1
+   init_wait03:
+   if #TargCurs = 1
+       goto init_wait03
+   set %beetledropbag #LTargetID
+
+   ;###%meinekisteid
+   display yes Now open your Secure Container. Then press DELETE / ENTF
+   init_wait04:
+  OnHotKey DELETE
+	 goto init_wait04_ok
+  goto init_wait04
+  init_wait04_ok:
+  set %meinekisteid #ContID
+
+   ;##%dropbag
+   display yes Now click the DROPBAG in your Secure Container
+   set #TargCurs 1
+   init_wait05:
+   if #TargCurs = 1
+       goto init_wait05
+   set %dropbag #LTargetID
+
+   set %text SETUP_DONE
+   gosub nachricht
+
+   ;### SAVE PAPSETUP.TXT
+   set %z ;PAPUA MINING SETUP 
+   execute %comand1 /c echo #smc ,papua mining setup > PAPSETUP.TXT
+   execute %comand1 /c echo set % , meinekisteid  %meinekisteid >> PAPSETUP.TXT
+   execute %comand1 /c echo set % , dropbag  %dropbag >> PAPSETUP.TXT
+   execute %comand1 /c echo set % , meinbeetle  %meinbeetle >> PAPSETUP.TXT
+   execute %comand1 /c echo set % , meinbeetlepack  %meinbeetlepack >> PAPSETUP.TXT
+   execute %comand1 /c echo set % , beetledropbag  %beetledropbag >> PAPSETUP.TXT
+   execute %comand1 /c echo set % , papsetupx  1 >> PAPSETUP.TXT
+
+   return
+}
+
+
+
+;#########################################
+;#########################################
+;#########################################
+
+;########### RECALL ###########
+
+;* @param    %1  runebookid  req  ID of runebook.
+;*                 %2  runenum     req  Rune number to recall from.
+
+sub recall
+{
+    set %daheim 0
+    if %2 = 1
+       set %daheim 1
+    if %feinde = 1
+        msg $all follow me$
+    if %notbonded = 1
+        gosub beetle_aufsteigen
+   gosub recall_sub %1 %2
+    if %blocked = #true
+       set %blocked 1
+    if %blocked = #false
+       set %blocked 0
+     wait 10
+    if %notbonded = 1
+        gosub beetle_absteigen
+   set %shouldcharposx #charposx
+   set %shouldcharposy #charposy
+
+return
+}
+
+;#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+
+;START OF GENERAL SUBS
+;#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+#+
+
+;##############################################
+;* Recalls from a runebook of your choice.
+;*
+;* @purpose  Recalls from a runebook of your choice.
+;* @author   Sefaran (enhanced by ScriptFellow)
+;* @param    %1  runebookid  req  ID of runebook.
+;*           %2  runenum     req  Rune number to recall from.
+;* @return   %blocked (#true or #false)
+;* @changes  #lObjectID
+sub recall_sub
+{
+	set %_runebookID %1
+                set %_time 10000
+	set %_bailOnBlocked #false
+	set %_method Recall
+                if %recalltype = 1 set %_method Recall
+                if %recalltype = 2 set %_method Chivalry
+                if %recalltype = 3 set %_method Scroll
+
+	set %blocked #false
+	set %_page ( %2 + 1 ) / 2
+	set %_odd %2 % 2
+	set %_runeX 448 - 160 * %_odd
+	set %_pageX %_page * 34 + 256
+	if %_page > 4
+		set %_pageX %_pageX + 31
+_recallStart:
+	set %_oldX #charPosX
+	set %_oldY #charPosY
+	if #contSize = 452_236 && #contID <> %_runebookID
+	{
+		click 290 397 R
+		gosub wait_tinker_cont_close
+	}
+	if #contSize <> 452_236
+	{
+_recallOpenBook:
+	               set #lObjectID %_runebookID
+		event Macro 17 0
+		gosub wait_tinker_cont_open
+		if ! %return
+			goto _recallOpenBook
+	}
+               if #contposx <> 150 || #contposy <> 200
+              {
+	  set #contposx 150
+                  set #contposy 200
+                  wait 10
+              }
+	click %_pageX 397 F
+  	wait 10
+	if %_method = Scroll
+	{
+		set %_runeX %_runeX - 6
+		click %_runeX 270 F
+	}
+	if %_method = Chivalry
+		click %_runeX 380 F
+	if %_method = Recall
+		click %_runeX 345 F
+	gosub wait_tinker_cont_close
+	set %_timeout #sCnt + 7
+_recallWaitForRecall:
+	if #sCnt > %_timeout
+		goto _recallStart
+	if something_is_blocking_the_location in #sysMsg
+	{
+   	    set %blocked #true
+	    return
+	}
+	if %_oldX = #charPosX && %_oldY = #charPosY
+		goto _recallWaitForRecall
+return
+}
+
+
+
+
+;#################################
+; Name: backpack_open
+; Purpose: opens backpack
+; %1 = X
+; %2 = Y
+; return  Initializes %backpackID 
+sub backpack_open
+{
+	set %_x %1
+	set %_y %2
+	event Macro 9 7
+                wait %backpackdelay
+	set #nextCPosX %_x
+	set #nextCPosY %_y
+	event Macro 8 7
+                wait %backpackdelay
+	set %backpackID #contID
+	if #contPosX <> %_x && #contPosY <> %_y
+	{
+		set #contPosX %_x
+		set #contPosY %_y
+                                wait %backpackdelay
+	}
+                return
+}
+
+; #######################################
+; Name: smallStatusBar
+; Purpose: opens Status Bar
+; %1 = X
+; %2 = Y
+sub smallStatusBar
+	set %_x %1
+	set %_y %2
+	event Macro 8 2
+	event Macro 10 2
+	wait 15
+	set #contPosX %_x
+	set #contPosY %_y
+     wait 15
+return
+
+
+;#################################
+;######### BEETLEROUTINES ########
+;##################################
+
+;###### Name: OpenBeetlepack 
+; %1 = beetlepackid %2=x %3=y
+sub OpenBeetlepack
+{
+	set %_container %1
+
+openbeetlenkb1:
+	set #FINDMOD 0_0
+	set #LOBJECTID %1
+	set #NEXTCPOSX %2
+	set #NEXTCPOSY %3
+	Event Macro 17
+	wait %backpackdelay
+
+               if #contid <> %_container
+              {
+	  goto openbeetlenkb1
+              }
+              openbeetlenkb2:
+              if #contposx <> %2
+              {
+                  contpos %2 %3
+                 goto openbeetlenkb2
+              }
+              return
+}
+
+;### hold beetle in range 
+;get beetle in range back if hes away and assume that enemys around
+sub checke_beetle
+{
+     ;inmi nervt irgendwie, aber beetle haut nur ab wenn Feind, nur welcher??
+     ;finditem ZGB
+     finditem %meinbeetle
+     if #finddist > 2
+     {
+        if %allme < 1
+            msg $all follow me$
+        set %allme %allme + 1
+        if %allme = 10
+            set %allme 0  
+        ;set %feinde 1
+        return
+     }
+     set %allme 0  
+     return
+}
+
+;### get beetle within 2 range of char by calling all follow me
+; %meinbeetle must be set with id
+sub wait_for_beetle
+{
+waitbeetle1:
+     finditem %meinbeetle
+     if #findkind < 0
+     {
+        wait 10
+        goto waitbeetle1
+     }
+     if #finddist > 2
+     {
+        msg $all follow me$
+        wait 10
+        goto waitbeetle1
+     }
+     return
+
+}
+
+;### dismount beetle 
+; %meinbeetle must be set with id
+sub beetle_absteigen
+{
+DISM5:
+	set #lobjectid #charid
+ 	event macro 17
+	wait 10
+
+    finditem %meinbeetle
+    if #findkind < -1
+    {
+        set %text dont_find_beetle,HALTED
+        gosub nachricht
+        halt
+    }
+    if #findkind = 0
+       goto DISM5
+    wait 10
+    msg $all follow me$
+    return
+}
+
+;### mount beetle 
+; %meinbeetle must be set with id
+sub beetle_aufsteigen
+{
+MOUNT5:
+     finditem %meinbeetle
+     if #findkind < 0 || #FINDDIST = N/A
+        return
+	If #finddist > 1
+     {
+		Msg All stop$
+      	Msg All follow me$
+          wait 10
+          goto MOUNT5
+     }
+    	set #LObjectID #findid
+	event macro 17 0
+     wait 10
+     goto MOUNT5
+}
+
+
+
+;################################
+;  Container opening
+;################################
+;##############################
+; Name: OpenContainerAt
+; Purpose: Opens a container at x y
+; %1 = container id
+; %2 = X
+; %3 = Y
+sub openContainerAt
+                set %_contid %1
+	set %_x %2
+	set %_y %3
+	set %_retry 0
+_openContainerAtRetry:
+	set #nextCPosX %_x
+	set #nextCPosY %_y
+	findItem %_contid
+	set #lObjectID #findID
+	event Macro 17 0
+                gosub waitForContainerToOpen %_contid
+                wait %backpackdelay
+	if #contID <> %_contid
+	{
+		set %_retry %_retry + 1
+		if %_retry < 5
+			goto _openContainerAtRetry
+	}
+	if #contPosX <> %_x && #contPosY <> %_y
+	{
+		set #contPosX %_x
+		set #contPosY %_y
+		wait %backpackdelay
+	}
+return
+
+sub waitForContainerToOpen
+{
+   set %4 #sCnt2 + 20
+   waitcheck31:
+     if #scnt2 > %4
+    {
+         set %return #false
+         return
+    }
+     if  #contid <> %1
+          goto waitcheck31
+      set %return #true
+      return
+}
+
+
+;###############################################
+; gosub MoveItemToClosedContainer %itemid %containerid %amount
+; Purpose: Moves an item to a specific container (it needs to be totally visible on screen)
+;#################################
+sub MoveItemToClosedContainer
+{
+   set %_item %1
+   set %_container %2
+   set %_amount %3
+   finditem %_container
+   set #FINDMOD 25_7
+   set %movetox #FINDX
+   set %movetoy #FINDY
+    gosub moveitemtopos %_item %movetox %movetoy %_amount
+    return
+}
+
+;#################################
+; gosub MoveItemToBackpack  %itemid %amount
+; Purpose: Moves an item to the backpack
+;#################################
+
+sub MoveItemToBackpack
+ {
+   set #FINDMOD 0_0
+   gosub drag %1 %2
+   gosub dropOnBackPack #backpackid
+   return
+}
+
+
+
+;###############################################
+;* gosub moveItemToPos %itemid %screenx %screeny %amount
+;###############################################
+sub moveItemToPos
+{
+	set %_x %2
+	set %_y %3
+	if %0 < 4 || %4 = N/A
+		set %4 0
+	gosub drag %1 %4
+                if %return = #true
+	   gosub drop %_x %_y
+	return
+}
+
+
+
+;##########################
+;# gosub drag %itemid %amount
+;# returns %return #false or #true
+;###########################
+sub drag
+{
+	set %_itemID %1
+	if %0 < 2 || ! ( %2 > 0 )
+	   set %_amount
+	else
+	   set %_amount %2
+	gosub waitForNoDragging
+                if %return = #false
+	     return
+	   msg $ ; clean keyboard buffer
+	   event Drag %_itemID
+_drag:
+                  gosub WaitForDragging
+                  if #contname = stack_gump
+                       msg %_amount $
+                  gosub waitForOnlyDragging
+                  if #contname = stack_gump
+                     goto _drag
+                ;wait %dragdelay   ;needed?
+                return
+}
+
+
+;##########################
+;# gosub drop %screenx %screeny
+;# returns %return #false or #true
+;###########################
+sub drop
+{
+	set %return #false
+	if #contname != drag_gump
+                      return
+	click %1 %2 P
+	gosub waitForNoDragging
+	wait %dropdelay
+               return
+}
+
+sub dropOnBackPack
+{
+	set %_findMod #findMod
+	set #findMod 0_0
+	findItem #backpackid
+	set %_paperdollX #findX
+	set %_paperdollY #findY
+	set #findMod %_findMod
+	set %_backpackX %_paperdollX + 142
+	set %_backpackY %_paperdollY + 225
+	gosub drop %_backpackX %_backpackY %_retVal
+                return
+}
+
+
+sub WaitForDragging
+{
+    LinesPerCycle %uncriticallinesPerCycle
+   set %return #true
+   set %4 #sCnt2 + 100
+   waitcheck71:
+     if #scnt2 > %4
+    {
+         set %return #false
+         LinesPerCycle %mylinesPerCycle
+         return
+    }
+     if  #contname = drag_gump
+    {
+         LinesPerCycle %mylinesPerCycle
+         return
+    }
+     if  #contname = stack_gump
+     {
+         LinesPerCycle %mylinesPerCycle
+         return
+     }
+     goto waitcheck71
+}
+
+
+sub waitForOnlyDragging
+{
+   LinesPerCycle %uncriticallinesPerCycle
+   set %return #true
+   set %4 #sCnt2 + 20
+   waitcheck77:
+     if #scnt2 > %4
+    {
+         set %return #false
+         LinesPerCycle %mylinesPerCycle
+         return
+    }
+     if  #contname = drag_gump
+     {
+         LinesPerCycle %mylinesPerCycle
+         return
+     }
+     goto waitcheck77
+      return
+}
+
+
+sub waitForNoDragging
+{
+   LinesPerCycle %uncriticallinesPerCycle
+   set %4 #sCnt2 + 40
+   waitcheck42:
+     if #scnt2 > %4
+    {
+         set %return #false
+         LinesPerCycle %mylinesPerCycle
+         return
+    }
+     if  #contname = drag_gump
+          goto waitcheck42
+     if  #contname = stack_gump
+          goto waitcheck42
+    set %return #true
+    LinesPerCycle %mylinesPerCycle
+    return
+}
+
+
+;##############################################
+; Tinker Sub
+; gosub tinker_sub %category %selection %shouldclose
+;          %1  category  req  Crafting category (0=make last)
+;          %2  item      req  Index of item to make
+;          %3  close     req  Close window after crafting (#true or #false)
+;##############################################
+sub tinker_sub
+
+    set %category %1
+    set %selection %2
+    set %shouldclose %3
+
+    set %werkzeug JTL
+
+ _start1
+     ;no tinker tool then return false
+     finditem %werkzeug C_ , #backpackid
+     if #findkind < 0
+     {
+        set %return #false
+        return
+     }
+     ;start the tinker tool
+     set #lobjectID #FindID
+     event macro 17 0
+     gosub wait_tinker_cont_open
+     if %return = #false
+         goto _start1
+    ; Make Last ?
+    if %category = 0
+    {
+       click 330 460
+       goto _craftingEnde
+    }
+
+   ; Maths to %_categoryY, %_selectionY, %_dragonY and %_resourceY
+   set %_changepage 0
+   _craftingSelection:
+   if %selection => 11
+   {
+       set %selection %selection - 10
+       set %_changepage %_changepage + 1
+       goto _craftingSelection:
+   }
+   set %_categoryY ( 120 + ( 20 * %category ) )
+   set %_selectionY ( 100 + ( 20 * %selection ) )
+
+    ; Change Category 
+    click 75 %_categoryY
+   gosub wait_tinker_cont_close
+   gosub wait_tinker_cont_open
+
+    ;change selection page
+    if %_changepage <> 0
+    {
+         for %cnt 1 %_changepage
+         {
+                click 430 320
+                wait 20
+	gosub wait_tinker_cont_open
+         }
+    }
+   gosub wait_tinker_cont_open
+
+
+  ;Make item
+   click 280 %_selectionY
+
+_craftingEnde:
+
+  gosub wait_tinker_cont_close
+  ; Close window
+   if %shouldclose = #true
+   {
+      gosub wait_tinker_cont_open
+      click 75 460
+   }
+   set %return #true
+    return
+}
+
+sub wait_tinker_cont_open
+{
+   set %4 #sCnt2 + 20
+   waitcheck1:
+     if #scnt2 > %4
+    {
+         set %return #false
+         return
+    }
+     if  #contname <> generic_gump
+          goto waitcheck1
+      set %return #true
+      return
+}
+
+sub wait_tinker_cont_close
+{
+   set %4 #sCnt2 + 20
+   waitcheck2:
+     if #scnt2 > %4
+    {
+         set %return #false
+         return
+    }
+     if  #contname = generic_gump
+          goto waitcheck2
+    set %return #true
+    return
+}

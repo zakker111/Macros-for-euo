@@ -1,0 +1,20 @@
+keyloop:
+;doubleclick the item you want to use for cutting
+;and then from Last Action menu write LOBJECTTYPE
+;to be the Leikkuri value. for example prac. Longsword
+;is KTF
+set %leikkuri VHR
+;choose your hotkey here
+onHotKey F3
+gosub F3
+goto keyloop
+
+sub F3
+finditem %leikkuri C
+event macro 17 0
+
+return
+
+
+
+

@@ -1,0 +1,10 @@
+If H in #charStatus
+{
+event Macro 13 47
+wait 10s
+}
+else
+{
+event Macro 13 21
+wait 10s
+}

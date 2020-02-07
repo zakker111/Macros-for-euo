@@ -1,0 +1,39 @@
+
+statusCheck:
+if C in #charStatus
+{
+ goto cure
+}
+else
+{
+goto statusCheck
+}
+
+cure:
+msg .band me$
+goto journalCheck
+
+journalCheck:
+set %jrnl #jindex
+while #true
+{
+      if #jindex > %jrnl
+      {
+      set %jrnl %jrnl + 1
+      scanjournal %jrnl
+      if you_have_successfully_healed_yourself in #journal
+      goto statusCheck
+      if nope_sukkesfully in #journal
+      goto cure
+      if You_have_no_chance_of_curing_yourself. in #sysmsg
+      goto paskaSaka
+      }
+}
+
+paskaSaka:
+display skillisi ei riita cureemiseen
+if #dispres = ok
+HALT
+
+
+

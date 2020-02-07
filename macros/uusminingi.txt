@@ -1,0 +1,490 @@
+
+initevents
+display okcancel Olisiko se Macrotuksen aika
+if #dispres = cancel
+HALT
+set %pick NPF_WTH 1
+Deletejournal
+
+1:
+FindItem %pick
+set #LObjectID #FindID
+set #LTargetKind 2
+set #LTargetX 0 + #CharPosX
+set #LTargetY 0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 2
+}
+else
+goto 1
+{
+
+2:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 3
+}
+else
+goto 2
+{
+
+3:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 4
+}
+else
+goto 3
+{
+
+4:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 5
+}
+else
+goto 4
+{
+
+5:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 6
+}
+else
+goto 5
+{
+
+6:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY 0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 7
+}
+else
+goto 6
+{
+
+7:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY 0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 8
+}
+else
+goto 7
+{
+
+8:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 9
+}
+else
+goto 8
+{
+
+9:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 10
+}
+else
+goto 9
+{
+
+10:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 11
+}
+else
+goto 10
+{
+
+11:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 12
+}
+else
+goto 11
+{
+
+12:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 13
+}
+else
+goto 12
+{
+
+13:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 14
+}
+else
+goto 13
+{
+
+14:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY -1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 15
+}
+else
+goto 14
+{
+
+15:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY -2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 16
+}
+else
+goto 15
+{
+
+16:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY -1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 17
+}
+else
+goto 16
+{
+
+17:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY -2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 18
+}
+else
+goto 17
+{
+
+18:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY -0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 19
+}
+else
+goto 18
+{
+
+19:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY -0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 20
+}
+else
+goto 19
+{
+
+20:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY -1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 21
+}
+else
+goto 20
+{
+
+21:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY -2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 22
+}
+else
+goto 21
+{
+
+22:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY -1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 23
+}
+else
+goto 22
+{
+
+23:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY -2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 24
+}
+else
+goto 23
+{
+
+24:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY -1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto 25
+}
+else
+goto 24
+{
+
+25:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY -2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 3s
+scanjournal
+if There_is_no_more_ore_here_to_mine. in #journal
+{
+deletejournal
+goto dis
+}
+else
+goto 25
+{
+
+dis:
+display Macro loppu vaiha paikkaa
+halt
+
+
+

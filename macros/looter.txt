@@ -1,0 +1,14 @@
+//onhotkey f2
+//{
+ wat:
+ findItem LZF_QMK_PZF_POF_QZF_OVF_HVF_BVF_VUF_RVF_EVF_MWF_FVF_GVF_DEG_GUF_KUF_WZF_SZF_JUF_RZF_JZF_MZF_KZF C
+ if #FindBagID = #BackPackID
+ {
+  ignoreItem #FindID 1
+  goto wat
+  }
+  exEvent drag #FindID #FindStack
+  wait 5
+  exEvent dropc #BackPackID
+  wait 5
+//}

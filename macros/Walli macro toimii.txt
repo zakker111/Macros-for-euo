@@ -1,0 +1,126 @@
+repeat
+  onhotkey f7
+    gosub muuraus
+  onhotkey m alt
+    gosub muuraus2
+  sleep 1
+until #false
+
+
+sub muuraus
+{
+
+event sysmessage Muuraus
+;muuraus
+;event macro 15 23 ;stone wall
+set #ltargetx 0
+set #ltargety 0
+
+set #targcurs 1
+while #targcurs = 1
+{
+ ;odotellaan
+ onhotkey ESC
+  return
+}
+
+wait 1
+finditem #ltargetid ;etsii sen mitä targetettiin
+set %vanhax #findx
+set %vanhay #findy
+;tarvitaan kun tarkastetaan, tehdäänkö
+;toinenkin muuri
+set #ltargetkind 2
+
+
+wait 1
+
+if ( #charposx < #findx ) && ( #charposy > #findy )
+{
+;pelaaja vasemmalla
+event sysmessage toimii oikealle
+set #ltargetx ( #findx + 1 )
+set #ltargety ( #findy - 1 )
+}
+
+if ( #charposx > #findx ) && ( #charposy < #findy )
+{
+;pelaaja oikealla
+event sysmessage toimii vasemmalle
+set #ltargetx ( #findx + 0 )      ;-2
+set #ltargety ( #findy + 1 )       ;-1
+}
+
+if ( #charposy > #findy ) && ( #charposx > #findx )
+{
+;pelaaja alhaalla
+event sysmessage toimii ylos
+set #ltargetx ( #findx - 1 )
+set #ltargety ( #findy - 1 )
+}
+if ( #charposy < #findy ) && ( #charposx < #findx )
+{
+;pelaaja ylhaalla
+event sysmessage toimii alas
+set #ltargetx ( #findx + 0 )
+set #ltargety ( #findy + 1 )
+}
+
+event macro 15 23
+target
+event macro 22 0 ;last target
+wait 1
+
+
+;TOINEN MUURI
+finditem #ltargetid ;etsii sen mitä targetettiin
+if ( #findx <> %vanhax ) || ( #findy <> %vanhay )
+{
+;jos target on jo poistunut paroista, ei tehdä toista
+;muuria
+return ;pois subista
+}
+if ( #charposx < #findx ) && ( #charposy > #findy )
+{
+;pelaaja vasemmalla
+event sysmessage toimii oikealle2
+set #ltargetx ( #findx + 0 )
+set #ltargety ( #findy + 1 )
+}
+if ( #charposx > #findx ) && ( #charposy < #findy )
+{
+;pelaaja oikealla
+event sysmessage toimii vasemmalle
+set #ltargetx ( #findx + 1 ) ;+2
+set #ltargety ( #findy - 1 ) ;+0
+}
+if ( #charposy > #findy ) && ( #charposx > #findx )
+{
+;pelaaja alhaalla
+event sysmessage toimii ylos
+set #ltargetx ( #findx + 0 )
+set #ltargety ( #findy + 1 )
+}
+if ( #charposy < #findy ) && ( #charposx < #findx )
+{
+;pelaaja ylhaalla
+event sysmessage toimii alas
+set #ltargetx ( #findx - 1 )
+set #ltargety ( #findy - 1 )
+}
+
+wait 1
+event macro 15 23
+target
+
+finditem #ltargetid
+if ( #findx <> %vanhax ) || ( #findy <> %vanhay )
+{
+ ;vielä viimeinen tarkistus, ettei turhaan heitellä
+ ;muuria
+ return ;pois subista
+}
+event macro 22 0 ;last target
+wait 5
+return
+}

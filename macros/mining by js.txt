@@ -1,0 +1,93 @@
+initevents
+FindItem NPF 1
+
+;Target 1
+set #LObjectID #FindID
+set #LTargetKind 2
+set #LTargetX -0 + #CharPosX
+set #LTargetY 0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+
+;Target 2
+set #LTargetX -0 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+
+;Target 3
+set #LTargetX -0 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+
+;Target 4
+set #LTargetX -1 + #CharPosX
+set #LTargetY 0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+
+;Target 5
+set #LTargetX -1 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+
+;Target 6
+set #LTargetX -1 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+
+;Target 2
+set #LTargetX +0 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+
+;Target 3
+set #LTargetX +0 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+
+;Target 4
+set #LTargetX +1 + #CharPosX
+set #LTargetY 0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+
+;Target 5
+set #LTargetX +1 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+
+;Target 6
+set #LTargetX +1 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 28s
+

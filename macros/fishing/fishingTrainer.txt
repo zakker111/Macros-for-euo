@@ -1,0 +1,226 @@
+;==================================
+; Script Name: Private Stock: Fishing
+; Author: skillup
+; Version: 1
+; Client Tested with: 5.0.2d
+; EUO version tested with: 1.5 v77
+; Shard OSI / FS:  Alexandria
+; Revision Date: 6/29/06
+; Public Release: 6/29/06
+; Global Variables Used:
+; Purpose: Easiest possible 0-80 fishing gain.
+;==================================
+event sysmessage Private Stock: Fishing Trainer
+event macro 8 7
+wait 10
+set #rhandid N/A
+set %fish GQD_EQD_DQD_FQD
+set %junk NVI_ZVI_TVI_PVI
+chooseskill fish
+finditem WSF_CNF_HNF C_ , #backpackid
+if #findkind = -1
+   {
+   event sysmessage No knife found.  Script halting.
+   halt
+   }
+event sysmessage Knife found.
+set %knife #findid
+wait 10
+finditem JAG C_ , #backpackid
+if #findkind = -1
+   {
+   event sysmessage No scissors found.  Script halting.
+   halt
+   }
+event sysmessage Scissors found.
+set %scissors #findid
+wait 10
+event macro 24 2
+wait 10
+finditem KDF C_ , #backpackid
+if #findkind = -1
+   {
+   event sysmessage No fishing pole found.  Script halting.
+   halt
+   }
+wait 5
+set %pole #findid
+event sysmessage Fishing pole found.
+wait 10
+exevent drag %pole
+wait 10
+exevent droppd
+wait 20
+event sysmessage Target the ship's hold now.
+set #targcurs 1
+while #targcurs = 1
+      {
+      wait 5
+      }
+set  %hold #ltargetid
+wait 10
+set %skill #skill
+set %timer1 #time
+set %timer2 #time
+wait 5
+event macro 8 7
+
+fish:
+if #charname = N/A
+   {
+   event macro 8 2
+   wait 5
+   event macro 10 2
+   }
+if #charghost = yes
+   halt
+if #weight > ( #maxweight - 20 )
+   gosub store
+if #skill >= ( %skill + 2 )
+   gosub trawl
+if #time > ( %timer2 + 000200 )
+   gosub trawl
+if #time > ( %timer1 + 005000 )
+   {
+   event macro 1 0 Come About
+   wait 10
+   event macro 1 0 backwards
+   wait 9s
+   event macro 1 0 stop
+   set %timer1 #time
+   }
+set #lobjectid %pole
+wait 10
+event macro 17 0
+target
+click 621 362 x 5
+wait 15
+set %fishtime #time
+fishing:
+if #time > ( %fishtime + 9 )
+   goto fish
+scanjournal 1
+if pull_out in #journal
+   {
+   gosub dropspecialfish
+   gosub filet
+   gosub cutwaste
+   goto fish
+   }
+if fail in #journal
+   goto fish
+wait 5
+goto fishing
+
+sub store
+event sysmessage Status: Storing raw fish and leather.
+store:
+finditem IND_JJG C_ , #backpackid
+if #findkind <> -1
+   {
+   exevent drag #findid #findstack
+   wait 10
+   exevent dropc %hold
+   wait 10
+   goto store
+   }
+event sysmessage Storage Complete.
+return
+
+sub trawl
+event macro 1 0 Slow forward
+wait 5
+scanjournal 1
+if stopped in #journal
+   {
+   event macro 1 0 Backwards
+   wait 2s
+   event macro 1 0 Stop
+   wait 20
+   event macro 1 0 come about
+   wait 20
+   event macro 1 0 Slow forward
+   wait 3s
+   event macro 1 0 Stop
+   wait 10
+   return
+   }
+wait 4s
+scanjournal 1
+if stopped in #journal
+   {
+   event macro 1 0 Backwards
+   wait 5s
+   event macro 1 0 Stop
+   wait 20
+   event macro 1 0 come about
+   wait 20
+   event macro 1 0 Slow forward
+   wait 3s
+   event macro 1 0 Stop
+   wait 10
+   return
+   }
+event macro 1 0 Stop
+wait 10
+event sysmessage Status: Fishing
+set %skill #skill
+set %timer2 #time
+return
+
+sub dropspecialfish
+dropspecialfish:
+finditem YDF C_ , #backpackid
+if #findkind <> -1
+   {
+   set #lobjectid #findid
+   event macro 17 0
+   wait 10
+   scanjournal 1
+   if similar in #journal
+    {
+    set %charposy ( #charposy - 1 )
+    wait 10
+    exevent drag #findid #findstack
+    wait 10
+    exevent dropc %hold
+    wait 10
+    goto dropspecialfish
+    }
+   goto dropspecialfish
+   }
+return
+
+sub filet
+filet:
+finditem %fish C_ , #backpackid
+if #findkind <> -1
+   {
+   set #ltargetkind 1
+   set #lobjectid %knife
+   set #ltargetid #findid
+   wait 5
+   event macro 17 0
+   wait 5
+   event macro 22 0
+   wait 5
+   goto filet
+   }
+return
+
+sub cutwaste
+cutwaste:
+finditem %junk C_ , #backpackid
+if #findkind <> -1
+   {
+   set #ltargetkind 1
+   set #lobjectid %scissors
+   set #ltargetid #findid
+   wait 5
+   event macro 17 0
+   wait 5
+   event macro 22 0
+   wait 5
+   goto cutwaste
+   }
+return

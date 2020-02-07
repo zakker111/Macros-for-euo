@@ -1,0 +1,20 @@
+;does this when mana is below ten
+if #mana < 10
+{
+;this says ".snoop"
+event macro 1 0 .snoop
+wait 1s
+;this targets last
+event macro 22 0
+wait 10s
+}
+;does this when mana is above ten
+else
+{
+;this casts spell stonewall
+event macro 15 23
+wait 3s
+;this targets last
+event macro 22 0
+wait 1s
+}

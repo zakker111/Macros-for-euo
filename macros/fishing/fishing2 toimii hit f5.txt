@@ -1,0 +1,95 @@
+;==================================
+; Script Name:   Fishermans Helper
+; Author: Nilmer
+; Version: 1.0
+; Client Tested with:
+; EUO version tested with:
+; Shard OSI / FS: OSI/FS
+; Revision Date:
+; Public Release:
+; Purpose: Make fishing quick and Easy With this fast
+; tool that requires no setup!
+;==================================
+initevents
+top:
+onhotkey f5
+gosub direction
+goto top
+sub direction
+if #chardir = 0
+set %direction n
+if #chardir = 1
+set %direction ne
+if #chardir = 2
+set %direction e
+if #chardir = 3
+set %direction se
+if #chardir = 4
+set %direction s
+if #chardir = 5
+set %direction sw
+if #chardir = 6
+set %direction w
+if #chardir = 7
+set %direction nw
+set %dir #chardir
+goto fish
+return
+fish:
+deletejournal
+finditem XHF C
+if #findkind = -1 2
+event exmsg #charid 3 19 You Do not have a Fishing pole!
+goto top
+set #lobjectid #findid
+event macro 17 0
+target 4s
+gosub targ %direction 3
+wait 15
+set %wait #scnt + 12
+fishwait:
+for %i 1 5
+{
+scanjournal %i
+if you_fish in #journal || You_pull_out in #journal
+goto drop
+if you_can't_fish in #journal 2
+event exmsg #charid 3 19 Get off your mount and hit f5
+goto top
+if #scnt > %wait
+goto drop
+}
+goto fishwait
+drop:
+if #weight >= #maxweight - 5
+{
+event exmsg #charid 3 19 Pack is Full!
+goto top
+}
+if #chardir <> %dir 2
+event exmsg #charid 3 19 Press F5 to restart
+goto top
+goto fish
+sub targ
+      set %_deltaX 0
+      set %_deltaY 0
+   if w in %1 || %1 = %_WEST || %1 = %_NORTHWEST || %1 = %_SOUTHWEST
+      set %_deltaX -3
+   if e in %1 || %1 = %_EAST || %1 = %_NORTHEAST || %1 = %_SOUTHEAST
+      set %_deltaX 3
+   if n in %1 || %1 = %_NORTH || %1 = %_NORTHWEST || %1 = %_NORTHEAST
+      set %_deltaY -3
+   if s in %1 || %1 = %_SOUTH || %1 = %_SOUTHWEST || %1 = %_SOUTHEAST
+      set %_deltaY 3
+if %1 = center || %1 = %_SAMETILE
+{
+      set %_deltaX 0
+      set %_deltaY 0
+}
+set #lTargetKind %2
+set #lTargetX #charposx + %_deltaX
+set #lTargetY #charposy + %_deltaY
+set #ltargetz #charposz
+target 3s
+event macro 22 0
+return

@@ -1,0 +1,31 @@
+menu Clear
+menu Activate main
+;menu HideEUO
+menu Window Size 100 110
+menu Window Title Perämies
+menu Window Color black
+menu Font BGColor skyblue
+menu Font Color black
+menu Font Style b
+menu Font Size 10
+menu Font Name Arial
+menu Button Täyttä 25 5 60 20 Täyttä
+menu Font Name Wingdings
+menu Button Eteenpäin_vasemmalle 25 25 20 20 ã
+menu Button Eteenpäin 45 25 20 20 á
+menu Button Eteenpäin_oikealle 65 25 20 20 ä
+menu Button Paapuuriin 5 45 20 20 Å
+menu Button Vasemmalle 25 45 20 20 ß
+menu Button Seis 45 45 20 20 û
+menu Button Oikealle 65 45 20 20 à
+menu Button Tyyrpuuriin 85 45 20 20 Æ
+menu Button Taaksepäin_vasemmalle 25 65 20 20 å
+menu Button Taaksepäin 45 65 20 20 â
+menu Button Taaksepäin_oikealle 65 65 20 20 æ
+menu Button Laske_ankkuri 5 85 20 20 G
+menu Button Täyskäännös 45 85 20 20 ô
+menu Button Nosta_ankkuri 85 85 20 20 H
+menu show
+
+wait 100s
+

@@ -1,0 +1,222 @@
+;*************************************
+;Ceed's Miner Assist v1.0.1c
+;© 2003 Minoc Miner Murderer
+;*************************************
+;PURPOSE: to automatically dry mine each spot and save your wrist
+;FUNCTIONS: dry mines each mining spot, replaces broken pickaxes
+;*************************notes***************************
+;
+;This script is NOT a rail script.  It is mearly a tool to
+;assist you in mining.
+;
+;**********************************************************
+;*************************credits***************************
+;
+;credit to ScriptFellow for his standard sub to drop the
+;ore to the packhorse.
+;
+;***********************************************************
+set %usepack 1
+set %delay 10
+set %pick QPF
+set %menucontkind CNWB
+set %dragcontkind EMCD
+set %singledragcontkind UEUB
+;*****************************script starts here, change nothing below this point***************************
+set %screenresx #clixres
+set %screenresy #cliyres
+set %subsinitialized 1
+set %centerx %screenresx / 2
+set %centery %screenresy / 2
+set %dontmovecursor 1
+click 200 200 n
+wait %shortdelay
+click 100 100 n
+wait %shortdelay
+if #CURSORX = 100
+{
+       if #CURSORY = 100
+               set %dontmovecursor 0
+}
+if %usepack = 1 8
+display ok Target your packhorse after pressing ok.
+set #targcurs 1
+targetpackloop:
+if #targcurs = 1
+goto targetpackloop
+wait %delay
+set %packie #ltargetid
+set %statx 50
+set %staty 5
+set %eventx 50
+set %eventy 20
+set %event2x 50
+set %event2y 35
+initevents
+set #menubutton N/A
+gosub display
+deletejournal
+begin:
+if #menubutton = CLOSED
+{
+       halt
+}
+menu delete STAT
+menu delete EVENT
+menu text STAT %statx %staty Waiting
+menu text EVENT %eventx %eventy Begin digging.
+wait 1
+for %i 1 8
+{
+       scanjournal %i
+       if YOU_DIG_SOME in #journal || LOOSEN_SOME_ROCKS_BUT in #journal
+       {
+               deletejournal
+               goto dig
+       }
+}
+goto begin
+dig:
+if #menubutton = CLOSED
+{
+       halt
+}
+menu delete STAT
+menu delete EVENT
+menu text STAT %statx %staty Working
+menu text EVENT %eventx %eventy Auto digging.
+finditem %pick C
+if #findkind = -1
+{
+       menu delete STAT
+       menu delete EVENT
+       menu text STAT %statx %staty Halted
+       menu text EVENT %eventx %eventy Out of pickaxes!
+       halt
+}
+set #lobjectid #findid
+event macro 17
+target
+event macro 22
+wait 1s
+for %i 1 8
+{
+       if #weight => 400
+       {
+               if %usepack = 1
+               {
+                       gosub movetopackie
+               }
+       }
+       scanjournal %i
+       if YOU_DIG_SOME in #journal || LOOSEN_SOME_ROCKS_BUT in #journal
+       + || YOU_DESTROYED_THE_ITEM in #journal
+       {
+               wait %delay
+               deletejournal
+               goto dig
+       }
+       if IS_NO_METAL_HERE in #journal || YOU_CANNOT_SEE_THAT in #journal
+       + || THAT_IS_TOO_FAR in #journal || YOU_CAN'T_MINE_THERE in #journal
+       {
+               deletejournal
+               if %usepack = 1
+               {
+                       gosub movetopackie
+               }
+               goto begin
+       }
+}
+goto dig
+sub display
+       menu clear
+       menu window size 300 50
+       menu window title Ceed's Miner Assist v1.0.1 beta
+       menu window color black
+       menu font bgcolor BLACK
+       menu font color red
+       menu font size 9
+       menu font style BI
+       menu text MSTATUS 2 5 Status:
+       menu text MEVENT 3 20 Event:
+       menu hideeuo
+       menu show
+       menu font style
+       return
+sub movetopackie
+       set %timer #scnt + 30
+       finditem %packie
+       if #finddist < 3
+               goto skiptimer
+       timerloop:
+       if #scnt < %timer
+               goto timerloop
+       skiptimer:
+       finditem %packie
+       if #findkind = -1 2
+               display ok I have lost sight of my packie.
+               pause
+       if #finddist > 2 2
+               display ok My packie can't reach me.
+               pause
+       oreloop2:
+       finditem DWJ_EWJ_GWJ_TVJ
+       if #findkind = 1 2
+       ignoreitem #findid
+       goto oreloop2
+       if #findkind = -1 2
+       goto exitloadpackie
+       finditem DWJ_EWJ_GWJ_TVJ
+       set %ore #findid
+       event drag %ore
+       oredragloop2:
+       if #contkind <> %dragcontkind 2
+       if #contkind <> %singledragcontkind
+       goto oredragloop2
+       msg $
+       finditem %packie
+       set %1 #findx
+       set %2 #findy
+       set %3 0
+       set %4 -35
+       gosub droptopackie
+       if CONTAINER_CANNOT_HOLD in #sysmsg
+       return
+       wait %delay
+       goto oreloop2
+       exitloadpackie:
+return
+sub droptopackie
+       set %_destx %1
+       set %_desty %2
+       set %_dispx %3
+       set %_dispy %4
+       finditem #charid
+       set %_deltax %_destx - #findx
+       set %_deltay #findy - %_desty
+       set %_deltax %_deltax * 22
+       set %_deltay %_deltay * 22
+       set %_movex %_deltay
+       set %_movex %_movex + %_deltax
+       set %_movey %_deltax
+       set %_movey %_movey - %_deltay
+       set %_cursorx %centerx + %_movex
+       set %_cursory %centery + %_movey
+       set %_cursorx %_cursorx + %_dispx
+       set %_cursory %_cursory + %_dispy
+       set %outsidescreen 1
+       if %_cursorx > 0
+       {
+               if %_cursory > 0
+               {
+                       if %_cursorx < %screenresx
+                       {
+                               if %_cursory < %screenresy
+                               {
+                                       set %outsidescreen 0
+                                       click %_cursorx %_cursory
+                               }
+                       }
+               }
+       }
+       return

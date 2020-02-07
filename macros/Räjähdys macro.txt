@@ -1,0 +1,35 @@
+alku:
+set #lpc 1000
+set %heitot 0
+repeat
+onhotkey F2
+gosub hotkey F2
+
+    onhotkey F2
+{
+
+    while %heitot < 15
+        {
+               set %y #charposy - 2
+               finditem TUF C
+               Exevent Drag #findid
+               Exevent Dropg #charposx %y #charposz
+               set %heitot %heitot + 1
+        }
+    else
+        {
+               finditem TUF g_2
+               set #lObjectID #findID
+               set #lTargetID #findID
+               wait 1s
+               event macro 17 0
+               target 3s
+               event macro 22 0
+               set %heitot 0
+               goto alku
+        }
+}
+
+
+
+

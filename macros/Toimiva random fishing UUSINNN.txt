@@ -1,0 +1,73 @@
+/random fishing vol 0.15/
+/vaatii toimiakseen euo version 1.5+/
+/toimiakseen kunnolla olisi hyv‰ ettei spawnaisi journaliin/
+/paljoa muuta teksti‰ koska journal scann on pikkutarkka ja silloin hang‰‰ zekki/
+/muista alussa kalastaa johkiin paikkaan ett‰ targetit toimii kunnolla/
+/onkii kun vesi on Shout East:issa/
+/jos hangaa komennolla .Pyydyst‰t saa toimimaan/
+
+initevents
+set %pole XHF /aku settingit etit‰‰n vapa ja pistet‰‰n variaatiks pole/
+if #charghost = yes /jos hahmo kuolleena lopetetaan macro/
+{
+HALT
+}
+
+alku:
+finditem %pole /etit‰‰n vapa repusta/
+set %random1 #random % 5 + 2 /koordinaatit hahmosta x-y/
+set %random2 #random % 5 + 2 /otetaan randomilla 1-8/
+set %random3 #random % 5 + 2 /en tied‰ tarvitaanko t‰t‰/
+set #LTargetX %random1 + #CharPosX
+set #LTargetY %random2 + #CharPosY
+set #LtargetZ %random3 + #charposZ /en tied‰ tarvitaanko t‰t‰/
+event Macro 17 /asetetaan targetiksi ja aletaan onkia targettiin/
+target
+event macro 22 0
+goto zekki /menn‰‰n zekkaileen journalia/
+
+/journal zekki joka menee alkuun jos kyseiset tekstit tulevat journaliin/
+/jos macro hang‰‰ saa toimimaan .pyydyst‰t komennolla/
+
+zekki:
+set %jrnl #jindex
+while #true
+   {
+   if #jindex > %jrnl
+      {
+      set %jrnl %jrnl + 1
+      scanjournal %jrnl
+      {
+      if Pyydyst‰t in #journal /jos kala tulee koukkuun menn‰‰n alkuun/
+      goto alku
+      }
+      if T‰st‰_kohtaa_ei_tunnu_kaloja_olevan in #journal /jos ei tule menn‰‰n alkuun/
+      goto alku
+      {
+      if Kala_p‰‰si_karkuun in #journal /jos p‰‰see karkuun menn‰‰n alkuun/
+      goto alku
+      }
+      if Ongit_ylˆs_vanhan_pullon in #journal /pullo menn‰‰n alkuun/
+      goto alku
+      {
+      if Pyydykseksi_tarttui_vanha_kenk‰pari in #journal /keng‰t menn‰‰n alkuun/
+      goto alku
+      }
+      if Ei_tuolla_mit‰‰n_kaloja_uiskentele in #journal /jos menee johkiin outoon paikkaan sanoo .pyydyst‰t ett‰ macro jatkaa silti pyˆrimist‰/
+      event macro 1 0 .pyydyst‰t /t‰ss‰ oli jokin bugi tai virhe koodissa korjaa sen/
+      {
+      else
+      {
+      goto zekki /jos mik‰‰n ei toteudu menn‰‰n takas zekkailemaan/
+      }
+}
+}
+}
+}
+}
+}
+}
+
+
+
+

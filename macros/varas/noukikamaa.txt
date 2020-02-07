@@ -1,0 +1,10 @@
+finditem TSF G_2
+sleep 100
+if #findid <> X
+{
+ exevent Drag #findid #findstack
+ exevent Dropc #backpackid
+}
+
+
+

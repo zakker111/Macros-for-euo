@@ -1,0 +1,107 @@
+;skripti alkaa
+;kuvalauta.fi/b/ ftw!
+
+^W::
+Valkoinen :=1
+Musta :=0
+Goto Piirra
+
+^S::
+Valkoinen :=0
+Musta :=1
+Goto Piirra
+
+Piirra:
+Gap := 7
+MaxSquare := 300
+
+CheckColor(xgap,ygap)
+{
+MouseGetPos, MouseX, MouseY
+MouseX := MouseX+xgap
+MouseY := MouseY+ygap
+PixelGetColor, color, %MouseX%, %MouseY%, RGB
+MouseMove, %xgap%, %ygap%, 0, R
+Varita(color)
+
+}
+
+
+Valkoista(color)
+{
+if (color < 0xEE0000 || color&0x00FFFF < 0xEE00 || color&0x0000FF < 0xEE) ; VALKOISELLE
+Click
+}
+
+Mustaa(color)
+{
+if (color > 0x100000 || color&0x00FFFF > 0x1000 || color&0x0000FF > 0x10) ; MUSTALLE
+Click
+}
+
+Varita(color)
+{
+global
+If (Valkoinen = 1)
+{
+Valkoista(color)
+}
+If (Musta = 1)
+{
+Mustaa(color)
+}
+
+}
+
+Halt :=0
+Inc := 1
+Looptimes := MaxSquare/Gap ; square of MaxSquare pixels divided by Gap pixels
+
+loop %Looptimes%
+{
+If Halt > 0
+Break
+
+;vasemmalle
+Loop %Inc%
+{
+CheckColor(Gap*-1,0)
+}
+If Halt > 0
+Break
+
+;alas
+Loop %Inc%
+{
+CheckColor(0,Gap)
+}
+If Halt > 0
+Break
+Inc++
+
+;oikealle
+Loop %Inc%
+{
+CheckColor(Gap,0)
+}
+If Halt > 0
+Break
+
+;ylos
+Loop %Inc%
+{
+CheckColor(0,-1*Gap)
+}
+Inc++
+
+}
+
+^E::
+Halt :=1
+Return
+
+^Q::
+ExitApp
+
+;kuvalauta.fi/b/ ftw!
+;skripti loppuu

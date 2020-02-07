@@ -1,0 +1,302 @@
+;-=Start of Script=-
+
+StartScript:
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 321 354
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 318 358
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 363 368
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 335 380
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 369 375
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 336 390
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 395 380
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 353 391
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 246 236
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 264 563
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 401 200
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 402 102
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 404 106
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 300 200
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 310 250
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 320 210
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 330 220
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 340 230
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 355 254
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 240 360
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 250 370
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 200 300
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 300 246
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 300 247
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 300 248
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 300 249
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 230 320
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 220 330
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 210 330
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 292 393
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 376 243
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 270 252
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 275 230
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 276 364
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 230 223
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 369 409
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 304 359
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 324 288
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 358 437
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 391 468
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 379 453
+wait 20s
+
+finditem XHF
+set #lobjectid #findid
+event macro 17 0
+
+click 361 446
+wait 20s
+
+GOTO StartScript
+
+
+;-=End of Script=-

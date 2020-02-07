@@ -1,0 +1,115 @@
+menu Window Title Example
+menu Window Color BtnFace
+menu Window Size 117 95
+menu Window Size 200 200
+menu Button button_1 10 20 50 25 East
+menu Button button_2 10 50 50 25 North
+menu Button button_3 10 80 50 25 West
+menu Button button_4 10 110 50 25 South
+menu Button button_5 10 140 100 25 Asetukset tehty
+menu Show
+
+menuloop:
+if #menubutton = button_1
+{
+set %a 5
+set %b 2
+set %c -5
+set %d -2
+goto alku
+}
+
+if #menubutton = button_2
+{
+set %a 5
+set %b 2
+set %c -5
+set %d -2
+goto alku
+}
+
+if #menubutton = button_3
+{
+set %a 5
+set %b 2
+set %c -5
+set %d -2
+goto alku
+}
+
+if #menubutton = button_4
+{
+set %a 5
+set %b 2
+set %c -5
+set %d -2
+goto alku
+}
+
+if #menubutton = button_5
+{
+halt
+}
+else
+{
+goto menuloop
+}
+
+alku:
+finditem %pole ;etit‰‰n vapa repusta
+set %random1 #random % %a + %b ;koordinaatit hahmosta x-y/
+set %random2 #random % %c + %d ;otetaan randomilla 1-8/
+set #LTargetX %random1 + #CharPosX
+set #LTargetY %random2 + #CharPosY
+event Macro 17 ;asetetaan targetiksi ja aletaan onkia targettiin/
+target
+event macro 22 0
+goto zekki ;menn‰‰n zekkaileen journalia/
+
+;journal zekki joka menee alkuun jos kyseiset tekstit tulevat journaliin/
+;jos macro hang‰‰ saa toimimaan .pyydyst‰t komennolla/
+
+zekki:
+set %jrnl #jindex
+while #true
+   {
+   if #jindex > %jrnl
+      {
+      set %jrnl %jrnl + 1
+      scanjournal %jrnl
+      {
+      if Pyydyst‰t in #journal /jos kala tulee koukkuun menn‰‰n alkuun/
+      goto alku
+      }
+      if T‰st‰_kohtaa_ei_tunnu_kaloja_olevan in #journal /jos ei tule menn‰‰n alkuun/
+      goto alku
+      {
+      if Kala_p‰‰si_karkuun in #journal /jos p‰‰see karkuun menn‰‰n alkuun/
+      goto alku
+      }
+      if Ongit_ylˆs_vanhan_pullon in #journal /pullo menn‰‰n alkuun/
+      goto alku
+      {
+      if Pyydykseksi_tarttui_vanha_kenk‰pari in #journal /keng‰t menn‰‰n alkuun/
+      goto alku
+      }
+      if Ei_tuolla_mit‰‰n_kaloja_uiskentele in #journal /jos menee johkiin outoon paikkaan sanoo .pyydyst‰t ett‰ macro jatkaa silti pyˆrimist‰/
+      event macro 1 0 .pyydyst‰t /t‰ss‰ oli jokin bugi tai virhe koodissa korjaa sen/
+      {
+      else
+      {
+      goto zekki /jos mik‰‰n ei toteudu menn‰‰n takas zekkailemaan/
+      }
+}
+}
+}
+}
+}
+}
+}
+
+
+
+
+
+

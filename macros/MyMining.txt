@@ -1,0 +1,711 @@
+;=================================================
+; Script Name: The Walking Miner
+; Author: KevinAllenWiegand
+; Version: 1.0
+; Client Tested with: 5.0.1i
+; EUO version tested with: 1.5
+; Shard OSI / FS: OSI
+; Revision Date: February 10, 2006
+; Public Release: February 10, 2006
+; Description: An attended mining script that mines
+;              spots dry as you walk with your Fire
+;              Beetle.
+; Purpose: Mines spots dry, smelts the ore
+;          you mine on your Fire Beetle,
+;          keeps track of the ingots and
+;          gems mined, as well as the number
+;          of shovels tinkered, tinkers
+;          shovels when needed.  No setup
+;          required.  Just load and run.
+; Limitations: This is not an unattended
+;              script!  You must manually
+;              walk to each place you want
+;              to mine, and face the
+;              direction of the mineable
+;              spot.  This script does not
+;              drop off resources anywhere.
+; Requirements: 1) Enough Tinkering to tinker
+;               shovels.  2) A Fire Beetle.
+;               3) 1 Tinker Tools.  4) Enough
+;               ingots to make 1 shovel and 1
+;               tinker tool to start off (6
+;               ingots on OSI).
+; Bugs: There seems to be an issue with EasyUO 1.5
+;       updating character positions, so in some
+;       cases, it will try and mine a spot, get a
+;       message stating that there is no more metal
+;       to mine, yet it takes about 7-8 tries for
+;       the script to "see" it.  If you step through
+;       the code as it runs, it runs fine...this seems
+;       to only happen with you are running it normally.
+;       I've played with #LPC, and the only setting that
+;       seems to get the script to function properly is
+;       by setting it to 1...which is ridiculously slow!
+;       Also, when attempting to smelt ore, if your
+;       beetle is close enough to you, but not accessible,
+;       the smelting will fail, and keep looping.  Best
+;       bet is to move yourself to get in accessible
+;       range with you and the beetle.
+; Copyright: 2006 KevinAllenWiegand
+;=================================================
+
+gosub Init
+gosub CountIngots
+gosub CountGems
+
+SET #menubutton N/A
+
+Start:
+
+if ( #menubutton = N/A )
+{
+     if ( %paused = #FALSE )
+     {
+          gosub Mine
+          gosub EnsureStatusBar
+
+          if ( #weight >= #maxweight )
+          {
+               gosub SmeltOre
+               gosub CountIngots
+               gosub CountGems
+          }
+     }
+}
+
+if ( #menubutton = btnPause )
+{
+     set #menubutton N/A
+
+     if ( %paused = #TRUE )
+     {
+          set %paused #FALSE
+          menu set btnPause Pause
+     }
+     else
+     {
+          set %paused #TRUE
+          menu set btnPause Continue
+          menu set st2 Paused...
+     }
+}
+
+if ( #menubutton = btnQuit )
+{
+     menu hide
+     Halt
+}
+
+goto Start
+
+sub Init
+{
+     SET %OreTypes TVJ_EWJ_GWJ_DWJ
+     SET %BeetleType JJ
+     SET %ShovelType NPF_WTH_
+     SET %TinkerType GTL_KTL_JTL
+     SET %IngotType ENK
+     SET %GemType TWS_GXS_UWS_VWS_AXS_ZWS
+     
+     SET %paused #FALSE
+
+     if ( %shovels = N/A )
+          set %shovels 0
+
+     menu clear
+     menu show
+     
+     menu window color $000000
+     menu window title The Walking Miner
+     menu window size 250 320
+     menu font transparent #true
+     
+     menu font color $FFFFFF
+     menu font size 12
+     menu text ic 10 5 Ingot Counts:
+     menu text gc 150 5 Gem Counts:
+     menu text st1 10 240 Status:
+     
+     menu font size 10
+     menu font color $FF0000
+     menu text ir1 10 30 Iron:
+     menu text dc1 10 50 Dull:
+     menu text sh1 10 70 Shadow:
+     menu text co1 10 90 Copper:
+     menu text br1 10 110 Bronze:
+     menu text go1 10 130 Gold:
+     menu text ag1 10 150 Agapite:
+     menu text ve1 10 170 Verite:
+     menu text va1 10 190 Valorite:
+     menu text ti1 10 210 Total:
+     
+     menu text c1 150 30 Citrine:
+     menu text d1 150 50 Diamond:
+     menu text e1 150 70 Emerald:
+     menu text r1 150 90 Ruby:
+     menu text s1 150 110 Sapphire:
+     menu text t1 150 130 Turquoise:
+     menu text tg1 150 150 Total:
+     
+     menu text su1 150 190 Shovels Made:
+     
+     menu font color $0000FF
+     menu text ir2 65 30 0
+     menu text dc2 65 50 0
+     menu text sh2 65 70 0
+     menu text co2 65 90 0
+     menu text br2 65 110 0
+     menu text go2 65 130 0
+     menu text ag2 65 150 0
+     menu text ve2 65 170 0
+     menu text va2 65 190 0
+     menu text ti2 65 210 0
+     
+     menu text c2 215 30 0
+     menu text d2 215 50 0
+     menu text e2 215 70 0
+     menu text r2 215 90 0
+     menu text s2 215 110 0
+     menu text t2 215 130 0
+     menu text tg2 215 150 0
+     
+     menu text su2 150 210 0
+     
+     menu text st2 10 260 Initializing...
+     
+     menu button btnPause 10 290 75 25 Pause
+     menu button btnQuit 95 290 75 25 Quit
+     
+     return
+}
+
+sub Mine
+{
+     if ( %NoMetal = #TRUE )
+     {
+          if ( ( %lCharPosX <> #CharPosX ) || ( %lCharPosY <> #CharPosY ) || ( %lCharDir <> #CharDir ) )
+          {
+               WAIT 10
+               SET %NoMetal #FALSE
+               SET %DeltaZ 0
+               SET %lCharPosX #CharPosX
+               SET %lCharPosY #CharPosY
+               SET %lCharDir #CharDir
+          }
+          else
+          {
+              menu set st2 Waiting to mine at new position...
+              return
+          }
+     }
+
+     MineMore:
+          if ( %CantSee = #FALSE )
+               menu set st2 Mining...
+     
+          if ( #weight >= #maxweight )
+               return
+
+          if ( #menubutton <> N/A )
+               return
+               
+          gosub SetMinePosition
+          set %mineK 2
+	        set %mineT 0
+	        gosub mineXY %mineX %mineY %mineZ %mineK %mineT
+
+          gosub MetalCheck
+          
+          if ( #result = #TRUE )
+               goto MineMore
+     return
+}
+
+sub SetMinePosition
+{
+     SET %DeltaX 0
+     SET %DeltaY 0
+
+     if ( #CharDir = 0 || #CharDir = 1 )
+          SET %DeltaY -1
+     
+     if ( #CharDir = 2 || #CharDir = 3 )
+          SET %DeltaX 1
+     
+     if ( #CharDir = 4 || #CharDir = 5 )
+          SET %DeltaY 1
+     
+     if ( #CharDir = 6 || #CharDir = 6 )
+          SET %DeltaX -1
+          
+     if ( %CantSee = #TRUE )
+     {
+        SET %CantSee = #FALSE
+        SET %DeltaZ %DeltaZ + 10
+     }
+          
+     SET %mineX #CharPosX + %DeltaX
+     SET %mineY #CharPosY + %DeltaY
+     SET %mineZ #CharPosZ + %DeltaZ
+     
+     return
+}
+
+sub mineXY
+{
+     finditem %ShovelType C_ , #backpackid
+     
+     if ( #findKind = -1 )
+     {
+          gosub TinkerTools
+          finditem %ShovelType C_ , #backpackid
+          
+          if ( #findKind = -1 )
+          {
+               menu set st2 Halted:  Could not find a shovel!
+               Halt
+          }
+     }
+     
+     wait 1s
+     set #lobjectid #findID
+     event macro 17 0
+     set #lTargetX %1
+     set #lTargetY %2
+     set #lTargetZ %3
+     set #lTargetKind %4
+     set #lTargetTile %5
+     target
+     event macro 22
+     return
+}
+
+sub MetalCheck
+{
+     wait 10
+     deleteJournal
+     for %counter 1 10
+	   {
+		      scanJournal %counter
+
+          SET %CantSee #FALSE
+          if ( you_cannot_see in #journal )
+          {
+               menu set st2 Location not visible, trying a higher altitude...
+               SET %CantSee #TRUE
+          }
+
+          if ( there_is_no_metal in #journal )
+          {
+               SET %NoMetal #TRUE
+               menu set st2 There is no metal here to mine!
+               ;deleteJournal
+               return #FALSE
+          }
+          
+          if ( that_is_too_far in #journal )
+          {
+               SET %NoMetal #TRUE
+               menu set st2 You are too far away to mine!
+               ;deleteJournal
+               return #FALSE
+          }
+          
+          if ( you_can't_mine in #journal )
+          {
+               SET %NoMetal #TRUE
+               menu set st2 That spot is not mineable!
+               ;deleteJournal
+               return #FALSE
+          }
+
+          if ( you_dig_some in #journal )
+          {
+              menu set st2 You got some ore!
+              ;deleteJournal
+              return #TRUE
+          }
+
+           ;deleteJournal
+     }
+          
+     return #FALSE
+}
+
+sub EnsureStatusBar
+{
+     if ( #maxweight = N/A )
+          EVENT MACRO 8 2
+          
+     if ( #maxweight = N/A )
+     {
+          menu set st2 Halted:  Could not open Status Bar!
+          HALT
+     }
+
+     return
+}
+
+sub SmeltOre
+{
+     menu set st2 Smelting Ore...
+     
+     msg All follow me$
+     wait 2s
+     
+     findItem %BeetleType G_2
+     
+     if ( #findKind <> -1 )
+     {
+          SET %BeetleID #findID
+     }
+     else
+     {
+          menu set st2 Halted:  Could not your Fire Beetle!
+          Halt
+     }
+
+     finditem %OreTypes CA_
+     
+     while ( #findKind <> -1 )
+     {
+          if ( #findType = TVJ )
+          {
+               if ( #findStack = 1 )
+               {
+                    ignoreItem #findID
+               }
+               else
+               {
+                    SET #LTARGETID %BeetleID
+     	              Set #LTARGETKIND 1
+	                  Set #LTARGETTILE #tiletype
+
+   		              set #LOBJECTID #findID
+   		              Event macro 17 0
+   		              Target
+   		              Event macro 22 0
+               }
+          }
+          else
+          {
+               SET #LTARGETID %BeetleID
+     	         Set #LTARGETKIND 1
+	             Set #LTARGETTILE #tiletype
+
+   		         set #LOBJECTID #findID
+   		         Event macro 17 0
+   		         Target
+   		         Event macro 22 0
+          }
+          
+          finditem %OreTypes CA_
+          
+          if ( #menubutton <> N/A )
+               return
+     }
+     
+     findItem %IngotType G_2
+     
+     while ( #findKind <> -1 )
+     {
+          menu set st2 Picking up dropped ingots...
+                    
+          event drag #findID
+          wait 30
+          msg $
+          
+          findItem #backpackid C_
+          
+          if ( #findKind <> -1 )
+          {
+               set #findMod 140_220
+               set %x #findX
+               set %y #findY
+               click %x %y p
+          }
+     
+          findItem %IngotType G_2
+          
+          if ( #menubutton <> N/A )
+               return
+     }
+     
+     ignoreItem reset
+     return
+}
+
+sub TinkerTools
+{
+     set %yClickCorrection 5
+
+     findItem %TinkerType C_ , #backpackid
+     
+     if #findCnt < 2
+	   {
+          menu set st2 Making more tinker tools...
+          finditem %TinkerType C_ , #backpackID
+          
+          if ( #findKind <> -1 )
+          {
+               set #lobjectID #findID
+     		       event macro 17 0
+     		       wait 1s
+               set %yclickval 149 + %yClickCorrection
+               click 66 %yclickval
+               wait 1s
+               set %yclickval 169 + %yClickCorrection
+               click 272 %yclickval
+               wait 3s
+               set %yclickval 453 + %yClickCorrection
+               click 66 %yclickval
+               wait 1s
+          }
+     }
+     
+     menu set st2 Making a shovel...
+     finditem %TinkerType C_ , #backpackID
+     
+     if ( #findKind <> -1 )
+     {
+          set #lobjectID #findID
+          event macro 17 0
+          wait 1s
+          set %yclickval 162 + %yClickCorrection
+          click 68 %yclickval
+          wait 1s
+          set %yclickval 311 + %yClickCorrection
+          click 424 %yclickval
+          wait 1s
+          set %yclickval 112 + %yClickCorrection
+          click 273 %yclickval
+          wait 3s
+          set %yclickval 453 + %yClickCorrection
+          click 66 %yclickval
+          wait 1s
+          
+          findItem %ShovelType C_ , #backpackid
+          
+          if ( #findKind <> -1 )
+          {
+               set %shovels %shovels + 1
+               menu font color $0000FF
+               menu set su2 %shovels
+          }
+     }
+          
+     return
+}
+
+sub CountIngots
+{
+     menu set st2 Counting Ingots...
+     
+     set %ir 0
+     set %dc 0
+     set %sh 0
+     set %co 0
+     set %br 0
+     set %go 0
+     set %ag 0
+     set %ve 0
+     set %va 0
+     
+     FindIngot:
+     if ( #menubutton <> N/A )
+         return
+         
+     findItem %IngotType C_ , #backpackid
+     
+     if ( #findKind <> -1 )
+     {
+          ignoreItem #findID
+          
+          event property #findID
+          wait 5
+          set %found #false
+             
+          if ( dull in #property )
+          {
+             set %dc %dc + #findStack
+             set %found #true
+             menu font color $0000FF
+             menu set dc2 %dc
+          }
+
+          if ( shadow in #property )
+          {
+             set %sh %sh + #findStack
+             set %found #true
+             menu font color $0000FF
+             menu set sh2 %sh
+          }
+
+          if ( ( copper in #property ) && ! ( dull in #property ) )
+          {
+             set %co %co + #findStack
+             set %found #true
+             menu font color $0000FF
+             menu set co2 %co
+          }
+
+          if ( bronze in #property )
+          {
+             set %br %br + #findStack
+             set %found #true
+             menu font color $0000FF
+             menu set br2 %br
+          }
+             
+          if ( gold in #property )
+          {
+             set %go %go + #findStack
+             set %found #true
+             menu font color $0000FF
+             menu set go2 %go
+          }
+             
+          if ( agapite in #property )
+          {
+             set %ag %ag + #findStack
+             menu font color $0000FF
+             menu set ag2 %ag
+          }
+             
+          if ( verite in #property )
+          {
+             set %ve %ve + #findStack
+             set %found #true
+             menu font color $0000FF
+             menu set ve2 %ve
+          }
+             
+          if ( valorite in #property )
+          {
+             set %va %va + #findStack
+             set %found #true
+             menu font color $0000FF
+             menu set va2 %va
+          }
+             
+          if ( ( ingots in #property ) && ( %found = #false ) )
+          {
+             set %ir %ir + #findStack
+             menu font color $0000FF
+             menu set ir2 %ir
+          }
+          
+          goto FindIngot
+     }
+     
+     ignoreItem Reset
+     gosub UpdateIngotTotal
+     return
+}
+
+sub UpdateIngotTotal
+{
+     set %total 0
+     set %total %total + %ir
+     set %total %total + %dc
+     set %total %total + %sh
+     set %total %total + %co
+     set %total %total + %br
+     set %total %total + %go
+     set %total %total + %ag
+     set %total %total + %ve
+     set %total %total + %va
+     
+     menu set ti2 %total
+
+     return
+}
+
+sub CountGems
+{
+     menu set st2 Counting Gems...
+
+     set %c 0
+     set %d 0
+     set %e 0
+     set %r 0
+     set %s 0
+     set %t 0
+
+     FindGem:
+     if ( #menubutton <> N/A )
+         return
+         
+     findItem %GemType C_ , #backpackid
+
+     if ( #findKind <> -1 )
+     {
+          ignoreItem #findID
+
+          event property #findID
+          wait 5
+
+          if ( citrine in #property )
+          {
+             set %c %c + #findStack
+             menu font color $0000FF
+             menu set c2 %c
+          }
+
+          if ( diamond in #property )
+          {
+             set %d %d + #findStack
+             menu font color $0000FF
+             menu set d2 %d
+          }
+
+          if ( emerald in #property )
+          {
+             set %e %e + #findStack
+             menu font color $0000FF
+             menu set e2 %e
+          }
+
+          if ( ruby in #property )
+          {
+             set %r %r + #findStack
+             menu font color $0000FF
+             menu set r2 %r
+          }
+
+          if ( sapphire in #property )
+          {
+             set %s %s + #findStack
+             menu font color $0000FF
+             menu set s2 %s
+          }
+
+          if ( turquoise in #property )
+          {
+             set %t %t + #findStack
+             menu font color $0000FF
+             menu set t2 %t
+          }
+
+          goto FindGem
+     }
+
+     ignoreItem Reset
+     gosub UpdateGemTotal
+     return
+}
+
+sub UpdateGemTotal
+{
+     set %total 0
+     set %total %total + %c
+     set %total %total + %d
+     set %total %total + %e
+     set %total %total + %r
+     set %total %total + %s
+     set %total %total + %t
+
+     menu set tg2 %total
+
+     return
+}

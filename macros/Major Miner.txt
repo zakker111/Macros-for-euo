@@ -1,0 +1,201 @@
+initevents
+	menu Clear
+	menu Window Title EUOMenu1
+	menu Window Color BtnFace
+	menu Window Size 113 64
+	menu Font Transparent #true
+	menu Font Align Right
+	menu Font Name MS Sans Serif
+	menu Font Size 8
+	menu Font Style 
+	menu Font Color WindowText
+	menu Button Retry 0 0 115 33 Try Spot Again
+	menu Button Tinker 0 32 115 33 Tinker
+	menu Show 421 270
+
+top:
+gosub mine
+wait 15
+gosub SmeltOnBeetle
+set %x #charposx
+set %y #charposy
+wait:
+gosub tile
+if ( ( #charposx > %x + 2 || #charposx < %x - 2 ) || ( #charposy > %y + 2 || #charposy < %y - 2 ) ) && %D = 1
+goto top
+if #menubutton = Retry
+{
+set #menubutton closed
+goto top
+}
+if #menubutton = Tinker
+gosub tinker
+goto wait
+
+sub Tinker
+tik:
+set #menubutton closed
+finditem GTL C
+if #findkind = -1 2
+event exmsg #charid 3 19 Finished Spot!
+return
+set #LOBJECTID #findid
+event macro 17 0
+set #scnt 0
+tink:
+if #scnt > 1
+goto tik
+if #contsize <> 530_437
+goto Tink
+click 332 464
+
+tink2:
+if #contsize <> 530_437
+goto Tink2
+click 332 464 r
+wait 15
+return
+
+
+
+
+sub mine
+if #chardir = 0 
+set %direction n 
+if #chardir = 1 
+set %direction ne 
+if #chardir = 2 
+set %direction e 
+if #chardir = 3 
+set %direction se 
+if #chardir = 4 
+set %direction s 
+if #chardir = 5 
+set %direction sw 
+if #chardir = 6 
+set %direction w 
+if #chardir = 7 
+set %direction nw 
+set %dir #chardir 
+deletejournal 1
+mine: 
+finditem QPF_TWF_WWF C 
+if #findkind = -1
+goto drop
+set #lobjectid #findid 
+event macro 17 0 
+target 4s 
+gosub targ %direction 2 
+wait 12 
+for %i 1 5 
+{ 
+scanjournal %i 
+if see_that_location in #journal 
+goto drop 
+if worn_out_your_tool in #journal 
+goto drop 
+if here_to_mine in #journal 
+goto drop 
+if cannot_be_seen in #journal 
+goto drop 
+if can't_mine in #journal 
+goto drop 
+if backpack_is in #journal 
+goto drop 
+if far in #journal 
+goto drop 
+if not_found in #journal 
+goto drop 
+if #weight > #maxweight - 30 
+goto drop 
+if #chardir <> %dir 
+goto drop 
+} 
+goto mine 
+drop: 
+if #weight >= #maxweight - 30
+event exmsg #charid 3 19 Pack is Full!
+if #weight < #maxweight - 30
+event exmsg #charid 3 19 Finished Spot!
+finditem QPF_TWF_WWF C 
+if #findkind = -1
+event exmsg #charid 3 19 Out of Tools!
+return 
+sub targ 
+      set %_deltaX 0 
+      set %_deltaY 0 
+   if w in %1 || %1 = %_WEST || %1 = %_NORTHWEST || %1 = %_SOUTHWEST 
+      set %_deltaX -1 
+   if e in %1 || %1 = %_EAST || %1 = %_NORTHEAST || %1 = %_SOUTHEAST 
+      set %_deltaX 1 
+   if n in %1 || %1 = %_NORTH || %1 = %_NORTHWEST || %1 = %_NORTHEAST 
+      set %_deltaY -1 
+   if s in %1 || %1 = %_SOUTH || %1 = %_SOUTHWEST || %1 = %_SOUTHEAST 
+      set %_deltaY 1 
+if %1 = center || %1 = %_SAMETILE 
+{ 
+      set %_deltaX 0 
+      set %_deltaY 0 
+} 
+set #lTargetKind %2 
+set #lTargetX #charposx + %_deltaX 
+set #lTargetY #charposy + %_deltaY 
+set #ltargetz #charposz 
+target 3s 
+event macro 22 0 
+return 
+
+
+
+
+sub tile
+if #chardir = 0 
+set %direction n 
+if #chardir = 1 
+set %direction ne 
+if #chardir = 2 
+set %direction e 
+if #chardir = 3 
+set %direction se 
+if #chardir = 4 
+set %direction s 
+if #chardir = 5 
+set %direction sw 
+if #chardir = 6 
+set %direction w 
+if #chardir = 7 
+set %direction nw 
+set %dir #chardir 
+deletejournal 1
+gosub targ2 %direction 2 
+return
+sub targ2 
+      set %_deltaX 0 
+      set %_deltaY 0 
+   if w in %1 || %1 = %_WEST || %1 = %_NORTHWEST || %1 = %_SOUTHWEST 
+      set %_deltaX -1 
+   if e in %1 || %1 = %_EAST || %1 = %_NORTHEAST || %1 = %_SOUTHEAST 
+      set %_deltaX 1 
+   if n in %1 || %1 = %_NORTH || %1 = %_NORTHWEST || %1 = %_NORTHEAST 
+      set %_deltaY -1 
+   if s in %1 || %1 = %_SOUTH || %1 = %_SOUTHWEST || %1 = %_SOUTHEAST 
+      set %_deltaY 1 
+set #lTargetKind %2 
+set %tilex #charposx + %_deltaX 
+set %tiley #charposy + %_deltaY 
+tile Init
+tile Get %tilex %tiley 1
+set %D 0
+if #tiletype > 555 && #tiletype < 573
+set %d 1
+if #tiletype > 221 && #tiletype < 245
+set %d 1
+return 
+
+sub SmeltOnBeetle 
+  ; ADD Snicker7's Sub here <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+
+return
+

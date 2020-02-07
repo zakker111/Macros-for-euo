@@ -1,0 +1,203 @@
+initevents
+display okcancel Olisiko se Macrotuksen aika
+if #dispres = cancel
+HALT
+
+set %pick NPF_WTH 1
+set #LTargetKind 2
+FindItem %pick
+Deletejournal
+
+1:
+set #LObjectID #FindID
+set #LTargetX  %x  + #CharPosX
+set #LTargetY  %y  + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+journalzekki:
+scanjournal
+{
+if Tässä_ei_ole in #journal
+goto koodi
+else
+goto journalzekki
+}
+{
+if Hakkusi_rikkoutui in #journal
+goto hakku
+else
+goto journalzekki
+}
+
+
+hakku:
+FindItem %pick
+goto koodi
+
+koodi:
+if %a = 26
+goto end
+{
+else
+set %a ( %a + 1 )
+}
+{
+if %a = 1
+set %x ( %x + 0 )
+set %y ( %y + 0 )
+goto 1
+}
+{
+if %a = 2
+set %x ( %x + 1 )
+set %y ( %y + 1 )
+goto 1
+}
+{
+if %a = 3
+set %x ( %x + 1 )
+set %y ( %y + 2 )
+goto 1
+}
+{
+if %a = 4
+set %x ( %x = 2 )
+set %y ( %y = 1 )
+goto 1
+}
+{
+if %a = 5
+set %x ( %x = 2 )
+set %y ( %y = 2 )
+goto 1
+}
+{
+if %a = 6
+set %x ( %x = -1 )
+set %y ( %y = 0 )
+goto 1
+}
+{
+if %a = 7
+set %x ( %x = -2 )
+set %y ( %y = 0 )
+goto 1
+}
+{
+if %a = 8
+set %x ( %x = 0 )
+set %y ( %y = 1 )
+goto 1
+}
+{
+if %a = 9
+set %x ( %x = 0 )
+set %y ( %y = 2 )
+goto 1
+}
+{
+if %a = 10
+set %x ( %x = -1 )
+set %y ( %y = 1 )
+goto 1
+}
+{
+if %a = 11
+set %x ( %x = -1 )
+set %y ( %y = 2 )
+goto 1
+}
+{
+if %a = 12
+set %x ( %x = -2 )
+set %y ( %y = 1 )
+goto 1
+}
+{
+if %a = 13
+set %x ( %x = -2 )
+set %y ( %y = 2 )
+goto 1
+}
+{
+if %a = 14
+set %x ( %x = 1 )
+set %y ( %y = -1 )
+goto 1
+}
+{
+if %a = 15
+set %x ( %x = 1 )
+set %y ( %y = -2 )
+goto 1
+}
+{
+if %a = 16
+set %x ( %x = 2 )
+set %y ( %y = -1 )
+goto 1
+}
+{
+if %a = 17
+set %x ( %x = 2 )
+set %y ( %y = -2 )
+goto 1
+}
+{
+if %a = 18
+set %x ( %x = 1 )
+set %y ( %y = 0 )
+goto 1
+}
+{
+if %a = 19
+set %x ( %x = 2 )
+set %y ( %y = 0 )
+goto 1
+}
+{
+if %a = 20
+set %x ( %x = 0 )
+set %y ( %y = -1 )
+goto 1
+}
+{
+if %a = 21
+set %x ( %x = 0 )
+set %y ( %y = -2 )
+goto 1
+}
+{
+if %a = 22
+set %x ( %x = -1 )
+set %y ( %y = -1 )
+goto 1
+}
+{
+if %a = 23
+set %x ( %x = -1 )
+set %y ( %y = -2 )
+goto 1
+}
+{
+if %a = 24
+set %x ( %x = -2 )
+set %y ( %y = -1 )
+goto 1
+}
+{
+if %a = 25
+set %x ( %x = -2 )
+set %y ( %y = -2 )
+goto 1
+}
+
+
+end:
+display Macro loppu vaiha paikkaa
+halt
+
+

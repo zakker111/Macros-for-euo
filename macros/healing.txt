@@ -1,0 +1,7 @@
+if #hits < 77
+{
+msg .band me$
+wait 13s
+}
+wait for target
+

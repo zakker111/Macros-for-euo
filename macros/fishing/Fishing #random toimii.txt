@@ -1,0 +1,17 @@
+initevents
+display okcancel Fisustusta ok?;t‰ysin turha, ok/cancel ruutu
+if #dispres = cancel
+HALT
+
+alku:
+finditem XHF
+set #lobjectid #findid
+set %random1 #random % 5 + 2;antaa random luvut v‰lilt‰
+set %random2 #random % 5 + 2; 2 - 7
+set #LTargetX %random1 + #CharPosX;asettaa kaksi random lukua
+set #LTargetY %random2 + #CharPosY;Charasta x-y coordinaatteihin
+event macro 17 0
+target;targetoi lukuun 2-7 ja heitt‰‰ vavan
+event macro 22 0
+wait 30s;venttailee ja aloittaa alusta
+goto alku

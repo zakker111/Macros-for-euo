@@ -1,0 +1,35 @@
+initevents
+set %2-tile SVCBUZF 1
+set %1-tile JFRUWZF 1
+
+alku:
+{
+if
+key  ;aseta näppäin 2-tilelle
+goto 2
+}
+if
+key  ;aseta näppäin 1-tilelle
+goto 1
+{
+else
+goto alku
+}
+
+
+1:
+event macro 24 2
+FindItem %1-tile
+set #LObjectID #FindID
+event macro 17
+goto alku
+
+2:
+event macro 24 2
+FindItem %2-tile
+set #LObjectID #FindID
+event macro 17
+goto alku
+
+
+

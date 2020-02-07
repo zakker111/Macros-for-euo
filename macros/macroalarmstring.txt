@@ -1,0 +1,23 @@
+alku:
+if #CONTNAME = generic_gump
+{
+ set %string #contsize
+ str Left %string 3  ; #strRes = gumpin x arvo
+ if ( 700 > #strRes && #strRes > 575 ) ;varmistaa et gumpin x oikealta väliltä
+ {
+  str right %string 3 ;#strRes = gumpin y arvo
+  if ( 550 > #strRes && #strRes > 450 ) ;varmistaa et gumpin y oikealta väliltä
+  {
+   /display MACRO
+   sound C:\Users\jumitus\Desktop\alert1.wav
+  }
+  else
+  {
+   goto alku
+  }
+ }
+ else
+ {
+  goto alku
+ }
+}

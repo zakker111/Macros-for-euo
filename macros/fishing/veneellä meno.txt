@@ -1,0 +1,107 @@
+set %Kartta ZZCZOXF
+
+menu Clear
+menu Activate main
+menu HideEUO
+menu Window Size 100 230
+menu Window Title Perämies
+menu Window Color black
+menu Font BGColor skyblue
+menu Font Color black
+menu Font Style b
+menu Font Size 10
+menu Font Name Arial
+menu Button Täyttä 25 5 60 20 Täyttä
+menu Font Name Wingdings
+menu Button Eteenpäin_vasemmalle 25 25 20 20 ã
+menu Button Eteenpäin 45 25 20 20 á
+menu Button Eteenpäin_oikealle 65 25 20 20 ä
+menu Button Paapuuriin 5 45 20 20 Å
+menu Button Vasemmalle 25 45 20 20 ß
+menu Button Seis 45 45 20 20 û
+menu Button Oikealle 65 45 20 20 à
+menu Button Tyyrpuuriin 85 45 20 20 Æ
+menu Button Taaksepäin_vasemmalle 25 65 20 20 å
+menu Button Taaksepäin 45 65 20 20 â
+menu Button Taaksepäin_oikealle 65 65 20 20 æ
+menu Button Laske_ankkuri 5 85 20 20 G
+menu Button Täyskäännös 45 85 20 20 ô
+menu Button Nosta_ankkuri 85 85 20 20 H
+;Kurssinappulat
+menu Font Name Arial
+menu Button Muokkaa 5 120 100 20 Muokkaa
+menu Button Aseta_kurssi 5 140 40 20 Aseta
+menu Button Kartta 45 140 60 20 kartasta
+menu Button Jatka_kurssia 5 160 100 20 Jatka
+menu Button Seilaa 5 180 60 20 Seilaa
+menu edit piste 75 180 28
+menu Button Tyhjää_kurssi 5 200 100 20 Tyhjää
+
+menu show
+set #menubutton N/A
+
+MainLoop:
+wait 5
+if #menubutton = N/A
+goto MainLoop
+if #menubutton = closed
+gosub closed
+if _ in #menubutton
+{
+gosub replace_
+goto MainLoop
+}
+gosub boatcommand
+set #menubutton N/A
+goto MainLoop
+
+
+sub boatcommand
+set %temp #menubutton
+str lower %temp
+if #menubutton = Seilaa
+{
+;jos ei numero,niin sitten karttapisteeseen 1
+menu GetNum piste 1
+msg #strres #menuRes $
+return
+}
+if #menubutton = Kartta
+{
+msg Aseta kurssi $
+gosub kohdista_karttaan
+return
+}
+if #menubutton = Muokkaa
+{
+gosub muokkaa_karttaa
+return
+}
+msg #strres $
+
+return
+
+sub replace_
+str pos #menubutton _
+set %strlen #strres - 1
+set %strlen2 #strres + 1
+str left #menubutton %strlen
+set %_1 #strres
+str mid #menubutton %strlen2 10
+set #menubutton %_1 , #spc , #strres
+return
+
+sub kohdista_karttaan
+set #LTargetID %Kartta
+target
+key F8
+return
+
+sub muokkaa_karttaa
+set #LObjectID %Kartta
+key F5
+return
+
+sub CLOSED
+halt
+return

@@ -1,0 +1,2 @@
+key f3
+wait 7s

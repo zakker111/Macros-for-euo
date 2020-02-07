@@ -1,0 +1,235 @@
+set %run #false ;Trueksi jollet halua error viestia
+
+set %boat #false ;ei kannata koskea
+
+set %exSysMessage
+set %SysMessage
+;#####################ASETUKSET####################
+;!!HUOM!! NÄITÄ KANNATTAA SÄÄTÄÄ IHAN ITSE !!HUOM!!
+;##################################################
+set %polina #false
+
+set %health_alarm #false
+set %hungry_alarm #true
+set %mana_alarm #false
+
+set %auto_eat #true
+set %auto_bandage #false
+set %auto_meditate #false
+set %auto_drag #false
+
+set %auto_re_un_eguip_in_potinon #false
+set %auto_re_un_equip_in_meditation #false
+set %auto_re_un_eguip_in_cast #false
+
+set %auto_looter #false
+
+set %HP_ 60 ;hp jonka jälkeen varoitus viesti pärähtää ilmoille/auto_bandage
+set %HU_ 10 ;nälkä leveli jonka jälkeen alkaa valittamaan/syömään
+set %MA_ 20 ;mana levelli
+;################ASETUKSET LOPPUU####################
+;####################################################
+
+;version tarkistus
+if #EUOVER < 1_50_00 && %run = #false
+{
+   display okcancel Macro tehty EUO versiolla 1.50 päivitä EUO tai paina OK jatkaaksesi
+
+   if #dispres = OK
+   {
+       set %run #true
+       event sysMessage Kiitos #charname etta valitsit helperin .mhelp saat listan komennoista
+   }
+
+   if #dispres = CANCEL
+   {
+       HALT
+   }
+}
+else
+{
+    set %run #true
+    event sysMessage Kiitos #charname etta valitsit helperin .mhelp saat listan komennoista.
+}
+
+;main loop
+while %run = #true
+{
+set %exSysMessage %sysMessage
+set %exEmote %newEmote
+
+      if %newEmote ! empty
+      {
+         event Macro 1 0 %newEmote
+      }
+
+      if %sysMessage ! empty
+      {
+         event sysMessage %sysMessage
+      }
+      
+
+      if %health_alarm = #true && #hits < %HP_ || %health_alarm = #false && %auto_bandage = #true && #hits < %HP_
+      {
+         if %polina = #true
+         {
+            set %newEmote : vuotaa pahasti verta
+            if %exEmote = %newEmote
+            {
+               set %newEmote empty
+            }
+         }
+
+         if %health_alarm = #true
+         {
+            set %sysMessage VAROITUS! HP ALHAINEN!
+            if %exSysMessage = %sysMessage
+            {
+            set %sysMessage empty
+            }
+         }
+
+         if %auto_bandage = #true
+         {
+            event Macro 1 0 .band me
+            wait 10s ;implementoidaan jokin sydeema ettei spawni
+         }
+      }
+      
+      if %hungry_alarm = #true && #luck > %HU_ || %auto_eat = #true && #luck > %HU_
+      {
+         if %polina = #true
+         {
+            set %newEmote : näyttää nälkäiseltä
+            if %exEmote = %newEmote
+            {
+               set %newEmote empty
+            }
+         }
+         
+         if %hungry_alarm = #true
+         {
+            set %sysMessage VAROITUS! NALKA!
+            if %exSysMessage = %sysMessage
+            {
+            set %sysMessage empty
+            }
+         }
+         
+         if %auto_eat = #true
+         {
+            finditem HND C_ , #BACKPACKID     ;#LOBJECTID IWKPNCG# #LOBJECTTYPE HND
+            if #FINDCNT > 0
+            {
+            ;NEEDS IMPLEMENTATION
+            ;double klikkaus tj tahan ruokaan
+            }
+         }
+      }
+      
+      if %mana_alarm = #true && #mana < %MA_ || %auto_meditate = #true && #mana < %MA_
+      {
+         if %polina = #true
+         {
+            set %newEmote taika voimani ovat vähissä
+            if %exEmote = %newEmote
+            {
+               set %newEmote empty
+            }
+         }
+         
+         if %mana_alarm = #true
+         {
+            set %sysMessage VAROITUS! MANA VAHISSA!
+            if %exSysMessage = %sysMessage
+            {
+            set %sysMessage empty
+            }
+         }
+         
+         if %auto_meditate = #true
+         {
+            if %auto_re_un_equip_in_meditation = #true
+            {
+            ;NEEDS IMPLEMENTATION
+            ;uneguippaa
+            ;kayta taitoa meditoi
+            wait 10s ;tahan implementoidaan parempi systeemi
+            }
+            else
+            {
+            ;NEEDS IMPLEMENTATION
+            ;kayta taitoa meditoi
+            wait 10s ;tahan implementoidaan parempi sydeemi
+            }
+         }
+      }
+      
+      if DOUBLEKLIKKED POTION && %auto_re_un_eguip_in_potinon = #true
+      {
+         ;NEEDS IMPLEMENTATION
+         ;uneguipataan
+         ;eguipataan kun kaytetty pottu
+      }
+      
+      if CASTITAAN SPELLI && %auto_re_un_eguip_in_cast = #true
+      {
+         ;NEEDS IMPLEMENTATION
+         ;uneguipataan
+         ;odotellaan etta saadaan targetti
+         ;eguipataan kun targetti lahtee
+      }
+      
+      if %boat = #true
+      {
+         ;NEEDS IMPLEMENTATION
+         ;piirretaan namiskat ruudulle HUOM HUOM YHEN KERRAN siksi falseksi TAI SITTEN JAADAAN TANNE JA TEHAAN WHILELLA
+      }
+      
+      if %drag = #true
+      {
+         ;NEEDS IMPLEMENTATION
+         ;dragätään lähellä olevia kamoja raahataan niin sanotusti
+      }
+      
+      
+      ;PISTE KOMENNOT journalzekistä? whilella vai miten? vai tanne whilen sisaan?
+      set %jrnl #jindex
+      while #true
+      {
+            if #jindex > %jrnl
+            {
+               set %jrnl %jrnl + 1
+               scanjournal %jrnl
+                           if .mhelp in #sysmsg
+                           {
+                              event SysMessage Komennot: .Boat .Drag .ListItems .FairyTail .Loot_[ITEM ID][TRUE/FALSE] .Toggle[auto_hungry][On/Off] .Wood .Pickup[On/Off] .Pickup[id][True/False] .pause ;listataan kaikki komennot
+                           }
+
+                           if .boat in #sysmsg && %boat = #true
+                           {
+                              set %boat #false
+                           }
+
+                           if .boat in #sysmsg && %boat = #false
+                           {
+                              set %boat #true
+                           }
+                           
+                           if .Drag in #sysmsg
+                           {
+                              set %auto_drag #true
+                           }
+            }
+      }
+      
+      
+
+
+}
+
+
+
+
+
+

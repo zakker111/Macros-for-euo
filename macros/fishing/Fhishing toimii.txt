@@ -1,0 +1,43 @@
+InitEvents
+
+event Macro 8 2
+set %maxweight #MaxWeight - 5
+event Macro 10 2
+For %i 1 13
+{
+  For %j 1 13
+  {
+  Set %x %i - 7
+  Set %y %j - 7
+  Set #LTargetX #CharPosX + %x
+  Set #LTargetY #CharPosY + %y
+  GoSub fishing
+  }
+}
+Halt
+
+Sub fishing
+  For %a 1 2
+  {
+    Event Macro 17
+    Target
+    Event Macro 22
+    set %a 1
+    wait 100
+    If #Weight > %maxweight
+    {
+      msg backpack is full... $
+      set %a 3
+      set %i 14
+      set %j 14
+    }
+    scanJournal 1
+    If any_fish_here In #Journal
+      set %a 3
+    If far_away In #Journal
+      set %a 3
+    If fish_there In #Journal
+      set %a 3
+    deleteJournal
+  }
+return

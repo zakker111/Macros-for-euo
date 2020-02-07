@@ -1,0 +1,130 @@
+;Fishing helper #Random Kehittynyt yksilˆ 0.50
+;!!!!ALUSSA MUISTA KALASTAA JOHKIIN ETTƒ TARGETIT TOIMIVAT!!!!!
+;kun haluat vaihtaa kalastus suuntaa paina suunnan vaihto nappulaa ja sen j‰lkeen
+;odotat kunnes tulee kala yms ja sitten
+;mihin suuntaan haluat kalastaa
+;Made in Zakkerlandia
+
+menu Window Title Fishing 0.20
+menu Window Color BtnFace
+menu Window Size 100 100
+menu Button button_1 60 60 50 35 East
+menu Button button_2 60 25 50 35 North
+menu Button button_3 10 25 50 35 West
+menu Button button_4 10 60 50 35 South
+menu Button button_5 10 4 100 25 suunnan vaihto
+menu Show
+
+menuloop:
+if #menubutton = button_1 ;East
+{
+set %a 6 ;random ylin numero
+set %b 1 ;random alin numero
+set %c -6 ;random ylin numero
+set %d -2 ;random alin numero
+goto alku ;nappia painettu menn‰‰n alku subiin
+}
+
+if #menubutton = button_2 ;North
+{
+set %a -6
+set %b -1
+set %c 2
+set %d -6
+goto alku
+}
+
+if #menubutton = button_3 ;west
+{
+set %a -2
+set %b -4
+set %c -7
+set %d -3
+goto alku
+}
+
+if #menubutton = button_4 ;south
+{
+set %a -6
+set %b -1
+set %c 5
+set %d 2
+goto alku
+}
+else
+{
+goto menuloop ;jos muk‰‰n ei toteudu menn‰‰n takas menulooppiin
+}
+
+alku:
+if #menubutton = button_5 ;jos on suunnanvaihto namiskaa painettu
+{
+goto menuloop             ;menn‰‰n takaisin menulooppiin
+}
+else
+{
+finditem XHF ;etit‰‰n vapa repusta
+set #LTARGETKIND 3 ;s‰‰det‰‰n vedelle
+set %random1 #random % %a + %b ;katotaan randomilla ylin-alin eli %a-%b
+set %random2 #random % %c + %d ;katotaan randomilla ylin-alin eli %c-%d
+set #LTargetX %random1 + #CharPosX ;s‰‰det‰‰n targetti x-y koordinatistoon
+set #LTargetY %random2 + #CharPosY ;randomilla saatuihin numeroihin hahmosta katsottuna
+event Macro 17 ;asetetaan targetiksi ja aletaan onkia targettiin
+target
+event macro 22 0
+goto zekki ;menn‰‰n zekkaileen journalia
+}
+;journal zekki joka menee alkuun jos kyseiset tekstit tulevat journaliin/
+;jos macro hang‰‰ saa toimimaan .pyydyst‰t komennolla/
+
+zekki:
+set %jrnl #jindex
+while #true
+   {
+   if #jindex > %jrnl
+      {
+      set %jrnl %jrnl + 1
+      scanjournal %jrnl
+      {
+      if Pyydyst‰t in #journal ;jos kala tulee koukkuun menn‰‰n alkuun/
+      goto alku
+      }
+      if T‰st‰_kohtaa_ei_tunnu_kaloja_olevan in #journal ;jos ei tule menn‰‰n alkuun/
+      goto alku
+      {
+      if Kala_p‰‰si_karkuun in #journal ;jos p‰‰see karkuun menn‰‰n alkuun/
+      goto alku
+      }
+      if Ongit_ylˆs_vanhan_pullon in #journal ;pullo menn‰‰n alkuun/
+      goto alku
+      {
+      if Pyydykseksi_tarttui_vanha_kenk‰pari in #journal ;keng‰t menn‰‰n alkuun/
+      goto alku
+      }
+      if Ei_tuolla_mit‰‰n_kaloja_uiskentele in #journal ;jos menee johkiin outoon paikkaan sanoo .pyydyst‰t ett‰ macro jatkaa silti pyˆrimist‰/
+      event macro 1 0 .pyydyst‰t ;t‰ss‰ oli jokin bugi tai virhe koodissa korjaa sen/
+      {
+      if Tarvitset_Pyydyksi‰_onkiaksesi in #journal ;pyydykset loppu stoppaa/
+      goto stop
+      {
+      if Ongit_ylˆs_kuluneen_kartan in #journal ;kartta alkuun
+      goto alku
+      }
+      else
+      {
+      goto zekki ;jos mik‰‰n ei toteudu menn‰‰n takas zekkailemaan/
+      }
+}
+}
+}
+}
+}
+}
+
+
+stop:
+display ok Hommaa lis‰‰ syˆttej‰
+if #dispres = ok
+HALT
+
+

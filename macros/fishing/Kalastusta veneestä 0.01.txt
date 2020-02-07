@@ -1,0 +1,77 @@
+;Kalastusta veneest‰ 0.01
+
+;!HUOM! Kalasta johkiin ennen macron aloitusta muuten targetit eiv‰t toimi
+;Hahmon pit‰‰ olla kiinni per‰miehess‰ ett‰ macro toimii
+;veneen pit‰‰ olla menossa kaikkiin muihin suuntiin paitsi southiin !HUOM!
+;LASKE ANKKURI ENNEN MACRON ALOITUSTA!
+;Madei in zakkerlandia
+
+alku:
+finditem XHF ;etit‰‰n vapa repusta
+set #LTARGETKIND 3 ;s‰‰det‰‰n vedelle
+set #LTargetX 0 + #CharPosX ;s‰‰det‰‰n targetti x-y koordinatistoon
+set #LTargetY 3 + #CharPosY ;hahmon paikasta katsottuna
+event Macro 17 ;asetetaan targetiksi ja aletaan onkia targettiin
+target
+event macro 22 0
+goto zekki ;menn‰‰n zekkaileen journalia
+
+eteenp‰in: ;sanoo eteenp‰in vene menee eteenp‰in jne...
+{
+event macro 1 0 nosta ankkuri
+wait 3s
+}
+event macro 1 0 eteenp‰in
+wait 3s
+{
+event macro 1 0 laske ankkuri
+goto alku ;menn‰‰n alku luupiin
+}
+
+zekki:
+set %jrnl #jindex
+while #true
+   {
+   if #jindex > %jrnl
+      {
+      set %jrnl %jrnl + 1
+      scanjournal %jrnl
+      {
+      if Pyydyst‰t in #journal ;jos kala tulee koukkuun menn‰‰n alkuun/
+      goto alku
+      }
+      if T‰st‰_kohtaa_ei_tunnu_kaloja_olevan in #journal ;jossei kalaa tuu menn‰‰n eteenp‰in loopiin
+      goto eteenp‰in
+      {
+      if Kala_p‰‰si_karkuun in #journal ;jos p‰‰see karkuun menn‰‰n alkuun/
+      goto alku
+      }
+      if Ongit_ylˆs_vanhan_pullon in #journal ;pullo menn‰‰n alkuun/
+      goto alku
+      {
+      if Pyydykseksi_tarttui_vanha_kenk‰pari in #journal ;keng‰t menn‰‰n alkuun/
+      goto alku
+      }
+      if Tarvitset_Pyydyksi‰_onkiaksesi in #journal ;pyydykset loppu stoppaa/
+      goto stop
+      {
+      if Ongit_ylˆs_kuluneen_kartan in #journal ;kartta alkuun
+      goto alku
+      }
+      else
+      {
+      deletejournal
+      goto zekki ;jos mik‰‰n ei toteudu menn‰‰n takas zekkailemaan/
+      }
+}
+}
+}
+}
+}
+}
+
+stop:
+display ok Hommaa lis‰‰ syˆttej‰
+if #dispres = ok
+HALT
+

@@ -1,0 +1,8 @@
+loop:
+scanjournal 1
+if Macrocheck in #journal
+{ sound alert1.wav display ok MACROCHECK
+}
+del
+delete #Journal
+goto loop

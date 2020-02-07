@@ -1,0 +1,867 @@
+
+;7/25/04
+;Jebbits On The Fly Lumber Rail 14
+set %ver 14
+key p alT
+;******** INITIAL SETTINGS*****************
+set %bank #true
+set %recall #false
+set %hideme #false
+set %menu #true
+set %stop 999999
+set %runenum 7                   ;rune number placement in book
+set %object xxxxxxx            ;Runebook ID
+set %home 4
+set %script #TRUE
+set %b 0
+set %first 0
+set %set1 0
+set %set2 0
+set %number 2
+set %b 0
+set %pole kdf_vmf_xhf
+set %fish eqd_gqd_dqd_fqd
+set %boards ind
+set %all %boards , _ , %logs
+set %saw wsf_tsf
+set %delay 30
+set %targetfirst 0
+set %counterstarted 0
+set %scnt 0
+set %secureid 0
+set %sss 0
+SET %S 0
+set %n 0
+set %o 0
+set %jin #jindex
+SET %cx #charposx
+SET %cy #charposy
+set %maxweight #maxweight - 25
+set *511 pause
+set %home %home + 1
+
+;*********PAPERDOLL SETUP********************
+Menu Clear
+   Menu hide
+   Menu Window size 310 40
+   Menu Window Color $D9D0C8
+   Menu Font bgcolor $D9D0C8
+   Menu Font Color Black
+Menu Font Style b
+Menu font size 12
+   Menu Font Name tahoma
+   Menu Window Title Jebbits Fishing Rail
+   Menu Text txt 10 10 Please Rate This Script If  You Use It
+   menu show 270 0
+wait 60
+   menu hide
+
+Menu Clear
+   Menu hide
+   Menu Window size 250 50
+   Menu Window Color $D9D0C8
+   Menu Font bgcolor $D9D0C8
+   Menu Font Color black
+Menu font size 10
+   Menu Font Name tahoma
+   Menu Window Title Jebbits Lumber Rail
+   Menu Text txt 10 10 Initializing
+Menu Font Color red
+Menu Text txt1 10 30 Verison %ver Osi/Freeshard 9/19/04
+   menu show 270 0
+   menu hideeuo
+wait 70
+ Menu Font Color Black
+menu delete txt
+menu delete txt1
+Menu Text txt 10 10 Initializing.
+Menu Text txt1 10 30 Opening Paperdoll
+Event macro 8 1
+      wait 20
+      contpos 650 0
+      event macro 8 7
+      wait 20
+menu delete txt
+menu delete txt1
+Menu Text txt 10 10 Initializing..
+Menu Text txt1 10 30 Opening Status
+event macro 8 2
+      wait 20
+      contpos 200 200
+      wait 20
+     CLICK 596 358
+menu delete txt
+menu delete txt1
+Menu Text txt 10 10 Initializing...
+Menu Text txt1 10 30 Opening Backpack
+event macro 8 7
+	 wait 20
+      contpos 615 330
+      wait 10
+      set %backpackid #contid
+      set %bb C_ , %backpackid
+      wait 10
+menu delete txt
+menu delete txt1
+Menu Text txt 10 10 Initializing....
+Menu Text txt1 10 30 Finding Pole
+           finditem %pole C_ , #charid
+            wait 30
+if #findid = x
+{
+display msg put teh pole in your hand and try again. Thanks!!!
+halt
+}
+ menu delete txt
+menu delete txt1
+Menu Text txt 10 10 Initializing.....
+Menu Text txt1 10 30 Finding Dagger
+         finditem %saw C_ , %backpackid
+wait 20
+        if #findid = x 2
+        display msg Hmmmm not finding any Dagger in your pack.
+        halt
+if %bank = no
+goto nextstep
+menu delete txt
+menu delete txt1
+Menu Text txt 10 10 Initializing.......
+Menu Text txt1 10 30 Locating Secure Container
+        finditem jif_kif_iif_HIF G_1
+        wait 10
+if #findid = x && %bank = #false 2
+       display msg Make sure you are standing next to a large wood or metal chest. Then restart the script
+       halt
+if %bank = #true
+msg bank $
+      wait 20
+      set #LOBJECTID #findid
+	event macro 17 0
+      wait 20
+if %bank = #true
+contpos 98 95
+      set %secureid #findid
+      ignoreitem #lobjectid
+nextstep:
+menu delete txt
+menu delete txt1
+Menu Text txt 10 10 Initializing........
+Menu Text txt1 10 30 Locating Storage Box
+WAIT 10
+        finditem cud_hkf c_
+        wait 10
+if #findid = x 2
+       display msg Make sure you have a small WOOD BOX in your secure. Then restart the script
+       halt
+      wait 20
+      set #LOBJECTID #findid
+      set %orebagid #findid
+      ignoreitem reset
+      set #lobjectid %secureid
+      wait 10
+menu delete txt
+menu delete txt1
+Menu Text txt 10 10 Initializing.........
+Menu Text txt1 10 30 Arming Pole
+gosub axearm
+wait 50
+
+sub axearm
+set %hold #lobjectid
+finditem %pole c_ , #charid
+if #findkind = 0
+{
+set %helditem #findid
+return
+}
+if #findkind = -1
+{
+finditem %pole c_ , %Backpackid
+if #findkind = -1
+{
+finditem %pole c_ , %Secureid
+if #findkind = -1 && %cutting = 99
+pause
+}
+set #rhandid #findid
+set %helditem #findid
+dropp:
+event macro 24 2
+finditem %helditem c_ , #charid
+if findkind = -1
+goto dropp
+set #lobjectid %hold
+}
+return
+
+  if %recall = #false
+{
+        goto menu
+}
+ menu delete txt
+menu delete txt1
+Menu Text txt 10 10 Initializing......
+Menu Text txt1 10 30 Setting up rune book ID
+finditem %object c_ , %backpackid
+wait 10
+if #findid = x 2
+display msg You do not have a rune book in your pack.
+halt
+      set #LOBJECTID #findid
+	event macro 17 0
+      wait 1s
+      set %drag #contkind
+      click 465 334 r
+
+
+menu:
+menu HIDE
+CLICK 128 192 R
+
+set %first 0
+set %set1 0
+set %set2 0
+gosub remember
+
+;**********RUNEBOOK SET UP****************************
+;****************MAIN MENU**********************
+
+gosub setup
+sub setup
+hh:
+display yesnocancel Click Yes If you wish to Mark a rail spot. Click no if you are finished. Click cancel if your wish to re-target a location
+if #dispres = no
+{
+deletejournal
+return
+}
+if #dispres = Cancel
+{
+    set %n %n - 1
+    set %o %o - 1
+    goto hh
+}
+if #dispres = yes
+{
+    GOSUB FINDtool
+    set #lobjectid #findid
+    event macro 17 0
+    set %first %first + 1
+    wait 20
+waiting:
+    if #targcurs = 1
+     goto waiting
+      set %set1 #cursorx
+       set %set2 #cursory
+        gosub remember
+if #weight > %maxweight
+gosub cut
+        goto hh
+}
+return
+
+gosub gohome
+loop:
+gosub chop
+gosub findtool
+gosub maketool
+gosub chop
+gosub check
+goto loop
+
+;******FIND Tool SUBROUTINE***********
+sub findtool
+finding:
+finditem %pole c_ , #charid
+       wait 5
+       if #findid <> X
+return
+else
+finditem %pole c_ , %backpackid
+       wait 5
+       if #findid = X && %home <> no
+{
+gosub gohome
+gosub house
+GOSUB RETURN
+}
+set %helditem #findtype
+return
+
+;***********Sub Chop*****************
+sub chop
+WALKAGAIN:
+if %nn < %home 2
+      gosub loc
+      GOTO WALKAGAIN
+      set #ltargetkind 2
+RETURN:
+if %nn < %home
+      return
+if %health = #true && #hits < #maxhits - 10
+      gosub health
+      finditem %helditem
+if #findkind = -1
+      gosub armaxe
+      set #lobjectid %helditem
+      event macro 17 0
+      WAIT 10
+      click %digspotx %digspoty d
+      click %digspotx %digspoty d
+      gosub check
+if %mark = 99
+goto misstime
+gosub check
+misstime:
+if %mark = 99
+{
+      set %MARK 0
+      gosub loc
+}
+      GOTO RETURN
+return
+
+
+;**************CHECK SUBROUTINE****************
+sub check
+set %scnt #scnt + 8
+checkagain:
+if #scnt > %scnt
+goto moveon
+set %checkit #jindex
+FOR %i %jin %checkit
+{
+   SCANJOURNAL %I
+if you_pull_out in #journal
+SET %JIN %CHECKIT + 1
+if you_pull_out in #journal
+goto moveon
+if Your_backpack_is_full in #journal
+gosub full
+if Can't_place in #journal
+gosub place
+if fish_don't_seem in #journal || cannot_see in #journal || far_away in #journal || can't_use in #journal
+gosub allelse
+        }
+SET %JIN %CHECKIT + 1
+finditem %pole C_ , #charid
+if #findkind = -1
+gosub axearm
+if #findkind = -1
+goto runhome
+	set %counter %counter + 1
+	scanjournal
+if #weight > %maxweight
+		{
+DELETEJOURNAL
+finditem %fish c_ , %backpackid
+       if #FINDID <> x
+                                   {
+     gosub cut
+gosub recheck
+     return
+                                  }
+IF #FINDID = X && %BANK = NO
+{
+DISPLAY MSG Overweight script is halting
+pause
+}
+runhome:
+if %recall = #true
+gosub recall
+   GOSUB GOHOME
+      gosub house
+       gosub goback
+        RETURN
+}
+If you_destroyed in #journal 1
+          gosub checktool
+	if %counter = 20
+set %x + 1
+if %counter = 20
+   set %counter 0
+     if %counter > 19
+       gosub checktool
+         wait 55
+goto checkagain
+moveon:
+	return
+
+
+sub full
+deletejournal
+gosub cut
+gosub recheck
+ return
+
+
+sub place
+deletejournal
+set %checkweight #weight
+gosub cut
+if %checkweight = #weight
+goto runhome
+return
+
+sub allelse
+SET %MARK 99
+DELETEJOURNAL
+ RETURN
+
+
+
+;***********HOUSE SUBROUTINE************
+sub house
+set %cutting 99
+set %nn 1
+set %oo 1
+set %o 1
+set %n 1
+;***********WALKING TO SECURE*************
+set %scnt #scnt
+movingtime:
+if #scnt - %scnt > 4
+     {
+      set %scnt #scnt
+      event macro 5 1
+      event macro 5 1
+
+           }
+      move %cx %cy 0 1s
+if #charposx <> %cx ||  #charposy <> %cy
+      goto movingtime
+      set %x + 1
+      set %counter 0
+;***************************HIDING********************
+if %hideme
+      event macro 13 21
+      wait 5
+;****************FIND AND OPEN CHEST*************
+opensecure:
+;Find chest
+IF %BANK = NO
+GOTO SKIP
+if %bank = #true 2
+   msg Bank $
+   goto skip
+FINDITEM %SECUREID
+IF #FINDKIND = -1
+{
+GOTO OPENSECURE:
+}
+skip:
+      ;Open chest
+      set #LOBJECTID %secureid
+      set #findmod 0_0
+      set #NEXTCPOSX 27
+      set #NEXTCPOSY 49
+      event macro 17 0
+set %scnt #scnt + 5
+WaitSecureToOpen:
+if %scnt < #scnt
+goto opensecure
+    finditem %orebagid
+if #findid <> %orebagid
+	goto WaitSecureToOpen
+INGOREITEM RESET
+finditem %pole c_ , #charid
+if #findid = x
+{
+gosub findtool
+gosub axearm
+}
+gosub more
+;---------------------------------------------Log routine-------------------------------------------------
+finditem %logs C_ , %backpackid
+wait 20
+if #findkind = 0
+gosub cut
+ore:
+finditem %boards c_ , %backpackid
+if %Menu = #true
+{
+gosub count
+gosub menu
+}
+finditem %all c_ , %backpackid
+     if #findkind = 1
+       {
+           goto ore
+             }
+
+            if #findkind = 0
+          {
+IF #lLiftedKind  <> 1
+     event drag #findid
+wait 15
+msg $
+wait 5
+       finditem %orebagid
+          set #findmod 20_10
+              click #findx #findy p
+                 wait 5
+                    goto ore
+	            }
+set %cutting 1
+return
+
+;--------------------------------------GET tool---------------------------------------------------------
+sub findtool
+    finditem %pole c_ , #charid
+if #findid <> x
+    return
+finditem %pole c_ , %backpackid
+if #findid <> x
+{
+gosub armaxe
+return
+}
+    set %amount 0
+    getmore:
+    finditem %pole c_
+    wait 1s
+if #findkind = -1
+{
+                    pause
+}
+
+if #findkind = 0
+{
+      more:
+         event drag #findid
+wait 10
+msg $
+wait 10
+                 click 718 367 p
+wait 5
+
+click 718 367 f
+                   wait 20
+                      wait 5
+}
+return
+
+
+;----------------------------------------HEAL----------------------------------------
+sub health
+if #hits >= #maxhits - 10
+   return
+    set *511 resume
+     loopit:
+      wait 10
+if #hits < #maxhits - 10
+   goto loopit
+     set *511 pause
+return
+
+;**********************
+sub axecut
+set %loop 0
+  retryy:
+set %loop %loop + 1
+if %loop >= 4
+{
+display mgs Failed 3 times to cut logs. Unable to use axe to make boards. This usually means you are on a server that uses tool to make boards. You might want to try setting "%axechop" to "#false" at the beginning of the script, and make sure you have a saw in your pack,  and restarting.
+halt
+}
+    finditem %helditem C_ , #charid
+      wait 15
+           set #lobjectid #findid
+            event macro 17 0
+finditem %logs  C_ , %backpackid
+if #findid = x
+return
+set #ltargetid #findid
+set #ltargetkind 1
+wait 20
+event macro 22 0
+goto retryy
+return
+
+sub cut
+SET %X 0
+  retry:
+    finditem %saw C_ , %backpackid
+      wait 15
+       if #findkind = -1 2
+GOSUB DRAGIT
+        return
+          set #lobjectid #findid
+            event macro 17 0
+wait 10
+             set %scnt #scnt + 10
+gump:
+ if #scnt > %scnt
+    goto retry
+finditem %fish c_ , %backpackid
+if #findid <> x
+{
+set #lobjectid #findid
+set #ltargetid #findid
+set #ltargetkind 1
+event macro 22 0
+wait 20
+finditem %fish c_ , %backpackid
+goto retry
+}
+return
+
+sub more
+  finditem %saw c_ , %backpackid
+     wait 10
+       if #findkind = 0
+         return
+finditem %saw C_
+    wait 10
+if #findkind = -1
+    pause
+     set #lobjectid #findid
+       event drag #lobjectid
+         wait 10
+           click 794 218 p
+return
+;-------------------------------Program loc below here-------------------------------
+sub loc
+MSG $
+IF %nn >= %FIRST + 1
+{
+if %recall = #true
+gosub recall
+        gosub gohome
+         gosub house
+}
+if %nn < %first + 1
+{
+            set %n %n + 1
+            set %o %o + 1
+            set %nn %nn + 1
+            set %oo %oo + 1
+            SET %MARK 0
+            set %x + 1
+             set %digspotx %digx . %n
+              set %digspoty %digy . %o
+             set %movex %walk . %n
+             set %movey %wallk . %o
+             move %movex %movey  0 5s
+if %movex <> #charposx && %movey <> #charposy
+{
+event pathfind %movex %movey
+wait 1s
+move %movex %movey 0 3s
+}
+}
+return
+
+
+sub remember
+              set %n %n + 1
+              set %o %o + 1
+              set %digx . %n %set1
+               set %digy . %o %set2
+               set %walk . %n #charposx
+               set %wallk . %o #charposy
+               set %nn %n
+               set %oo %o
+return
+
+sub gohome
+MSG $
+IF #WEIGHT >= #MAXWEIGHT
+GOSUB CUT
+if %recall = #false
+            SET %NNN %NN
+            moveagain:
+            set %nn %nn - 1
+            set %oo %oo - 1
+            move %walk . %nn %wallk . %oo 0 5s
+if %walk . %nn <> #charposx && %wallk . %nn <> #charposy
+{
+event pathfind %walk . %nn %wallk . %nn
+wait 1s
+move %walk . %nn %wallk . %nn 0 3s
+}
+IF %NN <> 1
+            goto moveagain
+            set %nn 1
+            set %oo 1
+            set %n 1
+            set %o 1
+return
+
+sub goback
+MSG $
+moveon:
+IF %NNN >= %FIRST + 1
+{
+          RETURN
+}
+IF %NNN = %NN
+    RETURN
+               SET %N %N + 1
+               SET %O %O + 1
+               set %nn %nn + 1
+               set %oo %oo + 1
+               move %walk . %nn %wallk . %oo 0 5s
+if %walk . %nn <> #charposx && %wallk . %nn <> #charposy
+{
+event pathfind %walk . %nn %wallk . %nn
+wait 1s
+move %walk . %nn %wallk . %nn 0 3s
+}
+               goto moveon
+return
+
+sub recheck
+if #weight > %maxweight
+{
+if %recall = #true
+gosub recall
+GOSUB GOHOME
+      gosub house
+       gosub goback
+}
+return
+
+sub dragit
+         SET %SS 0
+     drop:
+SET %SS %SS + 1
+if #weight < #maxweight
+return
+if %ss = 5 && #weight > #maxweight
+set %ss 0
+     WAIT 15
+IF %SS = 5
+     RETURN
+if %ss = 1 2
+set %st 300
+set %sy 215
+IF %SS = 2
+     SET %SY %SY + 30
+IF %SS = 3
+     SET %ST %ST + 30
+IF %SS = 4
+     SET %SY %SY - 30
+finditem %LOGS c_  , %backpackid
+    if #findkind = 0
+      {
+IF #LLIFTEDKIND = 0
+        Event Drag #Findid
+          wait 5
+            msg 5 $
+
+          wait 20
+       click %ST %SY P
+     }
+   GOTO drop
+
+return
+
+sub Recall
+if %recall = #false
+return
+wait 20
+SET %NNN %NN
+            set %nn 2
+            set %oo 2
+            set %n 2
+            set %o 2
+recallagain:
+ set %_runenumber %runenum
+   set %_style 0
+   set %_time 10
+
+   set %_oldx #charposx
+   set %_oldy #charposy
+
+   set %_page 0
+   set %_side 0
+   set %_num %_runenumber / 2
+   set %_page %_runenumber + 1
+   set %_page %_page / 2
+   set %_num %_num * 2
+   if %_num = %_runenumber
+      set %_side 1
+   set %_runex 285 ;305 
+   if %_side = 1
+      set %_runex 440 ;466 
+   set %_pagexmod %_page * 34
+   set %_pagex 256
+   set %_pagex %_pagex + %_pagexmod
+   if %_page > 4
+      set %_pagex %_pagex + 31
+   recallopenagain:
+wait 5
+   set #LOBJECTID %object
+   event macro 17 0
+wait 5
+   set #SCNT 0
+recallwaitforbook:
+   if #SCNT > 10
+      goto recallopenagain
+if #CONTKIND <> %Drag
+     goto recallwaitforbook
+   deletejournal
+wait 10
+   click %_pagex 397 f
+wait 20
+   click %_runex 345 f
+   set #SCNT 0
+recallwaitforrecall:
+   if #SCNT > 10
+      goto recallagain
+   scanjournal 1
+            wait 30
+   if %_oldx = #charposx
+   {
+      if %_oldy = #charposy
+      {
+         goto recallwaitforrecall
+      }
+   }
+gosub axearm
+   return
+
+sub count
+finditem %boards c_ , %backpackid
+if #findkind = 0
+{
+if #findkind <> -1
+set %b %b + #FINDSTACK
+}
+return
+
+sub menu
+if %menuset = 1
+goto count
+set %menuset 1
+menu clear
+      menu window size 100 50
+      menu window color BLACK
+      menu font bgcolor BLACK
+menu window title Fish
+menu font align center
+      menu font style
+	menu font color red
+	menu font size 11
+menu text stat 10 0 Total Cut Fish
+      menu font align center
+      menu font style
+	menu font color green
+	menu font size 11
+menu text stat 5 25 Amount
+	menu font align center
+count:
+      menu font style B
+	menu font color RED
+	menu font size 11
+menu Delete stat1
+menu text stat1 70 25 %b
+	menu font size 11
+	menu font style B
+	menu font color RED
+set #menubutton N/A
+	menu show 0 475
+if %b > %stop
+pause
+return

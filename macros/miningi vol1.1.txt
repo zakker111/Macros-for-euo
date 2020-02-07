@@ -1,0 +1,296 @@
+initevents
+display okcancel Olisiko se Macrotuksen aika
+if #dispres = cancel
+HALT
+
+set %pick NPF_WTH 1
+set #LTargetKind 2
+FindItem %pick
+Deletejournal
+
+1:
+set #LObjectID #FindID
+set #LTargetX 0 + #CharPosX
+set #LTargetY 0 + #CharPosY
+goto event
+
+2:
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY 1 + #CharPosY
+goto event
+
+3:
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY 2 + #CharPosY
+goto event
+
+4:
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY 1 + #CharPosY
+goto event
+
+5:
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY 2 + #CharPosY
+goto event
+
+6:
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY 0 + #CharPosY
+goto event
+
+7:
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY 0 + #CharPosY
+goto event
+
+8:
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY 1 + #CharPosY
+goto event
+
+9:
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY 2 + #CharPosY
+goto event
+
+10:
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY 1 + #CharPosY
+goto event
+
+11:
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY 2 + #CharPosY
+goto event
+
+12:
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY 1 + #CharPosY
+goto event
+
+13:
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY 2 + #CharPosY
+goto event
+
+14:
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY -1 + #CharPosY
+goto event
+
+15:
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY -2 + #CharPosY
+goto event
+
+16:
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY -1 + #CharPosY
+goto event
+
+17:
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY -2 + #CharPosY
+goto event
+
+18:
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY -0 + #CharPosY
+goto event
+
+19:
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY -0 + #CharPosY
+goto event
+
+20:
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY -1 + #CharPosY
+goto event
+
+21:
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY -2 + #CharPosY
+goto event
+
+22:
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY -1 + #CharPosY
+goto event
+
+23:
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY -2 + #CharPosY
+goto event
+
+24:
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY -1 + #CharPosY
+goto event
+
+25:
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY -2 + #CharPosY
+goto event
+
+journalzekki:
+scanjournal
+{
+if Tässä_ei_ole in #journal
+goto koodi
+else
+goto journalzekki
+}
+{
+if Hakkusi_rikkoutui in #journal
+goto hakku
+else
+goto journalzekki
+}
+
+event:
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+hakku:
+FindItem %pick
+set #lObjectID #findid
+goto koodi
+
+koodi:
+if %a = 25
+goto end
+{
+else
+set %a ( %a + 1 )
+}
+{
+if %a = 1
+goto 2
+}
+{
+if %a = 2
+goto 3
+}
+{
+if %a = 3
+goto 4
+}
+{
+if %a = 4
+goto 5
+}
+{
+if %a = 5
+goto 6
+}
+{
+if %a = 6
+goto 7
+}
+{
+if %a = 7
+goto 8
+}
+{
+if %a = 8
+goto 9
+}
+{
+if %a = 9
+goto 10
+}
+{
+if %a = 10
+goto 11
+}
+{
+if %a = 11
+goto 12
+}
+{
+if %a = 12
+goto 13
+}
+{
+if %a = 13
+goto 14
+}
+{
+if %a = 14
+goto 15
+}
+{
+if %a = 15
+goto 16
+}
+{
+if %a = 16
+goto 17
+}
+{
+if %a = 17
+goto 18
+}
+{
+if %a = 18
+goto 19
+}
+{
+if %a = 19
+goto 20
+}
+{
+if %a = 20
+goto 21
+}
+{
+if %a = 21
+goto 22
+}
+{
+if %a = 22
+goto 23
+}
+{
+if %a = 23
+goto 24
+}
+{
+if %a = 24
+goto 25
+}
+
+end:
+display Macro loppu vaiha paikkaa
+halt
+
+
+

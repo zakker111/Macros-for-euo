@@ -1,0 +1,191 @@
+;Fishing helper #Random Kehittynyt yksilˆ 0.30
+;kun haluat vaihtaa kalastus suuntaa tai stopata paina suunnan vaihto/stoppi nappulaa ja sen j‰lkeen
+;odotat kunnes tulee kala yms ja sitten macro stoppaa/voit valita mihin suuntaan kalastetaan
+;laita onki reppuun jos k‰dess‰ sattuu olemaan macro ottaa ongen repusta k‰teen
+;Made in Zakkerlandia
+
+set %LOHI FQD
+set %AHVEN EQD
+set %HAUKI GQD
+set %TAIMEN DQD
+set %ONKI XHF
+
+menu Window Title Fishing 0.30
+menu Window Color BtnFace
+menu Window Size 100 260
+menu Button button_1 60 60 50 35 East
+menu Button button_2 60 25 50 35 North
+menu Button button_3 10 25 50 35 West
+menu Button button_4 10 60 50 35 South
+menu Button button_5 10 4 100 25 suunnan vaihto
+menu Text Lohi 10 100 LOHIA
+menu Text Ahven 10 120 AHVENTA
+menu Text Hauki 10 140 HAUKEA
+menu Text Taimen 10 160 TAIMENTA
+menu Text Aika 10 180 Macro alkoi Klo
+menu Text Aika 30 200 #time
+menu Button button_6 20 220 70 30 STOP
+menu Show
+
+menuloop:
+if #menubutton = button_1 ;East
+{
+set %a 5 ;random ylin numero
+set %b 2 ;random alin numero
+set %c -6 ;random ylin numero
+set %d -2 ;random alin numero
+goto alku ;nappia painettu menn‰‰n alku subiin
+}
+
+if #menubutton = button_2 ;North
+{
+set %a 3
+set %b -5
+set %c 6
+set %d -6
+goto alku
+}
+
+if #menubutton = button_3 ;west
+{
+set %a -2
+set %b -4
+set %c -7
+set %d -3
+goto alku
+}
+
+if #menubutton = button_4 ;south
+{
+set %a -6
+set %b -1
+set %c 5
+set %d 2
+goto alku
+}
+else
+{
+goto menuloop ;jos mik‰‰n ei toteudu menn‰‰n takas menulooppiin
+}
+
+alku: ;aluksi etit‰‰n kalat sun muut kalastettavat roinat repusta ja n‰ytet‰‰n menussa
+finditem %LOHI C_ , #BACKPACKID
+if #FINDCNT > 0
+{
+	menu text lohi 80 100 #FINDSTACK
+}
+
+finditem %AHVEN C_ , #BACKPACKID
+if #FINDCNT > 0
+{
+	menu text ahven 80 120 #FINDSTACK
+}
+
+finditem %HAUKI C_ , #BACKPACKID
+if #FINDCNT > 0
+{
+	menu text hauki 80 140 #FINDSTACK
+}
+
+finditem %TAIMEN C_ , #BACKPACKID
+if #FINDCNT > 0
+{
+	menu text taimen 80 160 #FINDSTACK
+}
+if #menubutton = button_5 ;jos on suunnanvaihto namiskaa painettu menn‰‰n takaisin menulooppiin
+{
+goto menuloop
+}
+if #menubutton = button_6
+{
+goto aika
+}
+if %e = 1 ;jos onki on jo otettu k‰teen menn‰‰n alku1 subiin
+{
+goto alku1
+}
+else
+{
+goto onki ;ellei onkea viel‰ ole k‰dess‰ eli %e joku muu kuin 1 menn‰‰n ottamaan onki k‰teen onki subiin
+}
+
+alku1:
+{
+set #LTARGETKIND 2 ;s‰‰det‰‰n vedelle
+set %random1 #random % %a + %b ;katotaan randomilla ylin-alin eli %a-%b
+set %random2 #random % %c + %d ;katotaan randomilla ylin-alin eli %c-%d
+set #LTargetX %random1 + #CharPosX ;s‰‰det‰‰n targetti x-y koordinatistoon
+set #LTargetY %random2 + #CharPosY ;randomilla saatuihin numeroihin hahmosta katsottuna
+set #Ltargetz #CharPosZ -2 ;z coordinaatistoon ett‰ varmasti menee veteen
+event Macro 17 ;asetetaan targetiksi ja aletaan onkia targettiin
+target
+event macro 22
+goto zekki ;menn‰‰n zekkaileen journalia
+}
+;journal zekki joka menee alkuun jos kyseiset tekstit tulevat journaliin/
+;jos macro hang‰‰ saa toimimaan .pyydyst‰t komennolla/
+
+zekki:
+set %jrnl #jindex
+      {
+      scanjournal %jrnl
+      }
+      if Pyydyst‰t in #journal ;jos kala tulee koukkuun menn‰‰n alkuun/
+      goto alku
+      {
+      if your_skill in #journal
+      goto alku
+      }
+      if T‰st‰_kohtaa_ei_tunnu_kaloja_olevan in #journal ;jos ei tule menn‰‰n alkuun/
+      goto alku
+      {
+      if Kala_p‰‰si_karkuun in #journal ;jos p‰‰see karkuun menn‰‰n alkuun/
+      goto alku
+      }
+      if Ongit_ylˆs_vanhan_pullon in #journal ;pullo menn‰‰n alkuun/
+      goto alku
+      {
+      if Pyydykseksi_tarttui_vanha_kenk‰pari in #journal ;keng‰t menn‰‰n alkuun/
+      goto alku
+      }
+      if Tarvitset_Pyydyksi‰_onkiaksesi in #journal ;pyydykset loppu stoppaa/
+      goto stop
+      {
+      if Ongit_ylˆs_kuluneen_kartan in #journal ;kartta alkuun
+      goto alku
+      }
+      else
+      {
+      goto zekki ;jos mik‰‰n ei toteudu menn‰‰n takas zekkailemaan
+      }
+}
+stop:
+display ok Hommaa lis‰‰ syˆttej‰ ;ilmoitetaan ett‰ syˆtit loppui ja stopataan macro
+if #dispres = ok
+HALT
+
+onki:
+{
+if %e = 0
+}
+    finditem %ONKI C_ , #BackPackID
+    if #FindCnt = 0
+    {
+        display ok Ei ole onkia! $ ;ilmoitetaan ett‰ onkia ei repussa ja stopataan macro
+        halt
+    }
+    set #LObjectID #FindID
+    set %e  1
+    goto alku
+{
+else
+goto alku
+}
+
+aika:
+Display sammutit macron klo #time
+if #dispres = ok
+halt
+
+
+

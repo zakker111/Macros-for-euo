@@ -1,0 +1,62 @@
+set *CharID FYPOW ;- thowen ;MAVML -knife ;Uhrin ID
+set *SnoopBag AMOPNVF ;-knife ;Snoopbagin ID, riippuu snooppaajasta (snooppaajalle aina sama)
+set *ItemType MLH ;Varastettavan esineen type
+
+gosub snoop ;Ensin snoopataan
+gosub varkaus ;Kun snooppaus on valmis, siirrytään varastamiseen, minkä jälkeen takas snooppaamiseen
+
+sub snoop
+  set %done 0
+  while %done = 0 ;Snoopataan kunnes %done = 1
+  {
+    msg .skill snooping$ ;Sanotaan .snoop (skilliä ei voi käyttää)
+    target ;Odotetaan targettia (tai 3s, oletus)
+    set #ltargetid *CharID ;Last targetiksi Uhrin ID
+    event macro 22 ;Targetoi last targetin
+    sleep 1000 ;Odottaa hetken, että laukku on varmasti auki
+    if #CONTID = PPPGXCG ;FVURTWF ilmeisesti yksilöllinen, selvitä omasi, eli snoopatun laukun ID. Aina sama riippumatta uhrista.
+         set %done 1 ;Jatketaan eteenpäin, jos laukku on auki
+    wait 8s ;Odotetaan 8s ennen uusia toimia
+  }
+return
+
+sub varkaus
+    set %done 0
+    while %done = 0 ;Loopataan kunnes %done muuttuu
+    {
+      finditem *ItemType C_ , *SnoopBag ;Etsitään esine snoopatusta laukusta
+                                ;Selvitä snoopatun laukun ID ensin (snooppaamalla)
+      sleep 500
+      if #findid <> X ;Jos esine löytyy toisen repusta, varastus:
+      {
+        set #ltargetid #findid ;Löydetty esine last targetiksi
+        event macro 13 33 ;Käytetään stealingia
+        target ;Odotetaan targettia
+        event macro 22 ;Targetoidaan last target
+        sleep 500
+      }
+      finditem *ItemType C_ , #BACKPACKID ;Etsitään esineitä omasta laukusta.
+      if #findid <> X ;Jos esine löytyy omasta laukusta, varastaminen on selvästi onnistunut. Sillon podutetaan ja palataan snooppaamaan.
+      {
+        gosub drop ;Tiputetaan
+        set %done 1 ;Ilmoitetaan whilelle, että ollaan valmiita
+      }
+      if #CONTID <> *SnoopBag ;Jos uhrin laukku on sulkeutunut, ollaan epäonnistuttu. Palataan snooppiin.
+      {
+        gosub snoop ;Valinnainen kohta. Epäonnistumisen jälkeen voi olla viisasta snooppailla pari minuuttia.
+        set %done 1
+      }
+      wait 7s
+    }
+return
+
+sub drop ;Tiputus
+  finditem *ItemType C_ , #backpackid ;Etsitään esinettä omasta repusta
+   if #findid <> X ;Jos löytyy niin...
+   {
+    Exevent Drag #findid #findstack ;raahataan esine (stacki)
+    Exevent Dropg #charposx #charposy #charposz ;tiputetaan omiin jalkoihin
+   }
+return
+
+

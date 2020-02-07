@@ -1,0 +1,3 @@
+if #hits < 30
+sound alert1
+

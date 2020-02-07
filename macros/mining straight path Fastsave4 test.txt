@@ -1,0 +1,1331 @@
+;7/14/04
+set %ver 16
+set %file mine.txt
+set %cmd cmd.exe
+initevents
+key p alt
+set %recall #false
+set %straighthome #false
+set %opendoor #false
+set %sand NO
+set %smelt #true
+set %bank #false
+set %count #False
+set %AlwaysClick #FALSE
+set %stop #false
+set %amount 1000
+if %sand = yes || %bank = #true
+set %smelt #false
+set %color #false
+;++++++++++++++++++++++++++++++++
+sub stop
+if %stop = #false
+goto wkq
+If %iron >= %amount       ;change the %iron  to one of the 9 setting below
+pause
+wkq:
+return
+set %iron 0
+set %d 0
+set %s 0
+set %c 0
+set %b 0
+set %g 0
+set %a 0
+set %ve 0
+set %va 0
+;++++++++++++++++++++++++++++++++++
+;******** INITIAL SETTINGS*****************
+set %first 0
+set %tim 12
+set %jin #jindex
+set %home 1
+set %logweight 12
+set %script #TRUE
+set %b 0
+set %hideme #TRUE
+if %bank = #true
+set %hideme #false
+set %color #true
+set %shovels 5
+set %forge JBG_SOJ_ROJ_AUJ_ZTJ_CUJ_BUJ_WTJ
++_VTJ_JUJ_JUJ_EUJ_DUJ_GUJ_FUJ_QUJ_PUJ_OUJ
++_NUJ_YUJ_XUJ_AVJ_ZUJ_UUJ_TUJ_IVJ_HVJ_CVJ
++_BVJ_EVJ_DVJ_OVJ_NVJ
+set %shovelid WWF_qpf_twf_npf
+set %alloreid DWJ_GWJ_EWJ_TVJ_enk_KSG
+set %doorname jif_kif_iif_HIF_zpc
+set %object qwl
+set %delay 30
+set %targetfirst 0
+set %counterstarted 0
+set %scnt 0
+set %secureid 0
+set %sss 0
+set %counting 0
+set %ingotid ENK_ksg
+SET %S 0
+set %n 0
+set %o 0
+SET %cx #charposx
+SET %cy #charposy
+set %maxweight #maxweight - 25
+set *511 pause
+chooseskill hidi
+wait 10
+set %home %home + 2
+if %recall = #true
+set %straighthome #false
+
+;*********Menu SETUP********************
+set %asd 30
+set %asa 10
+set %stop 0
+Menu Clear
+   Menu hide
+   Menu Window size 310 40
+   Menu Window Color $D9D0C8
+   Menu Font bgcolor $D9D0C8
+   Menu Font Color Black
+Menu Font Style b
+Menu font size 12
+   Menu Font Name tahoma
+   Menu Window Title Jebbits Miner Rail
+   Menu Text txt 10 10 Please Rate This Script If  You Use It
+   menu show 270 0
+wait 60
+   menu hide
+
+Menu Clear
+   Menu hide
+   Menu Window size 235 175
+   Menu Window Color $D9D0C8
+   Menu Font bgcolor $D9D0C8
+   Menu Font Color Black
+   Menu Font Name tahoma
+   Menu Window Title Jebbits OTF Rail Miner
+   Menu Text txt 10 10 Initializing
+Menu Font Color red
+ Menu Text txt1 5 30 Ver %ver OSI/Some Free Shards 9/19/04
+Menu Font Color black
+  menu show 0 0
+menu show 0 0
+   menu hideeuo
+wait 60
+menu delete txt1
+Menu Text txt 10 %asa Initializing.
+Menu Text txt1 10 %asd Opening Paperdoll
+Event macro 8 1
+      wait 20
+      contpos 650 0
+      event macro 8 7
+      wait 20
+Menu Font Color red
+Menu Text txt2 150 %asd Passed
+Menu Font Color black
+set %asd %asd + 15
+Menu Text txt 10 10 Initializing..
+Menu Text txt1 10 %asd Opening Status
+event macro 8 2
+      wait 20
+      contpos 200 200
+      wait 20
+     CLICK 596 358
+Menu Font Color red
+Menu Text txt2 150 %asd Passed
+Menu Font Color black
+menu delete txt
+set %asd %asd + 15
+Menu Text txt 10 10 Initializing...
+Menu Text txt1 10 %asd Opening Backpack
+event macro 8 7
+	 wait 20
+      contpos 615 330
+      wait 10
+      set %backpackid #backpackid
+      wait 10
+      IF #BACKPACKID <> #CONTID
+      display msg Caution the backpack id check does not match the # , backpackid in easyuo. This can cause the script to not work.
+Menu Font Color red
+Menu Text txt2 150 %asd Passed
+Menu Font Color black
+menu delete txt
+set %asd %asd + 15
+Menu Text txt 10 10 Initializing....
+Menu Text txt1 10 %asd Finding Shovel
+         finditem %shovelid c_ , %backpackid
+wait 30
+        if #findid = x 3
+set %stop 2
+Menu Font Color red
+Menu Text txt2 150 %asd Failed
+if #findid <> x 2
+Menu Font Color red
+Menu Text txt2 150 %asd Passed
+Menu Font Color black
+menu delete txt
+set %asd %asd + 15
+Menu Text txt 10 10 Initializing.......
+Menu Text txt1 10 %asd Locating Secure
+wait 30
+Menu Font Color Green
+if %bank = #true
+{
+Menu Text txt2 150 %asd Bank
+msg bank $
+wait 20
+set %secureid #contid
+}
+         else
+{
+Menu Text txt2 150 %asd House
+finditem jif_kif_iif_HIF_bud_dhp
++_ygp_xgp_ahp_zgp_jhp_mhp_lhp_ghp_ikf G_2
+        wait 10
+ set #LOBJECTID #findid
+	event macro 17 0
+set %secureid #findid
+wait
+contpos 110 110
+}
+if #findid = x && %bank = #false
+{
+set %stop 2
+Menu Font Color red
+Menu Text txt2 150 %asd Failed
+}
+Menu Font Color black
+if #findid <> x
+{
+Menu Font Color red
+Menu Text txt2 150 %asd Passed
+}
+Menu Font Color black
+if #findid = x && %bank = #true
+{
+Menu Font Color red
+Menu Text txt2 150 %asd Passed
+}
+Menu Font Color black
+      wait 20
+      menu delete txt
+set %asd %asd + 15
+Menu Text txt 10 10 Initializing........
+Menu Text txt1 10 %asd Locating Storage Box
+WAIT 10
+if %bank = #true
+        finditem cud_hkf c_
+else
+finditem cud_hkf_grl_frl c_ , %secureid
+        wait 25
+if #findid = x
+{
+set %stop 2
+Menu Font Color red
+Menu Text txt2 150 %asd Failed
+}
+if #findid <> x
+{
+Menu Font Color red
+Menu Text txt2 150 %asd Passed
+}
+Menu Font Color black
+      wait 20
+      set #LOBJECTID #findid
+      set %orebagid #findid
+      wait 10
+ if %recall = #false
+             {
+               goto menu
+                }
+set %asd %asd + 15
+  menu delete txt
+Menu Font Color black
+    Menu Text txt 10 10 Initializing......
+      Menu Text txt1 10 %asd Setting up recall
+        finditem %object c_ , %backpackid
+          wait 10
+Menu Font Color red
+if #findid <> x
+Menu Text txt2 150 %asd Passed
+            if #findid = x
+            {
+set %stop 2
+	Menu Font Color red
+Menu Text txt2 150 %asd Failed
+}
+menu:
+set %asd %asd + 15
+   menu delete txt
+Menu Text txt 10 10 Initializing.........
+Menu Text txt1 10 %asd Locating forge
+findItem %forge G_3
+if #findid = x && %smelt = #true 3
+set %stop 2
+Menu Font Color red
+Menu Text txt2 150 %asd Failed
+if #findid <> x 2 && %smelt = #true 2
+Menu Font Color red
+Menu Text txt2 150 %asd Passed
+if #findid <> x && %smelt = #false 2
+Menu Font Color red
+Menu Text txt2 150 %asd Disabled
+menu delete txt
+set %asd %asd + 20
+Menu Font Color red
+Menu Text txt 10 10 Initializing.........
+if %stop <> 2
+Menu Text txt1 10 %asd Done And Ready For Action
+if %stop = 2 3
+Menu Font Color red
+Menu Text txt1 10 %asd Please Fix Failed Tests And Restart
+halt
+wait 50
+menu hide
+CLICK 128 192 R
+hide easyuo
+msg $
+
+set %first 0
+set %set1 0
+set %set2 0
+gosub remember
+
+;**********RUNEBOOK SET UP****************************
+;****************MAIN MENU**********************
+
+gosub setup
+display yesno Do you have a rail made, and do you wish to use it
+if #dispres = yes
+{
+set %userail yes
+goto skipp
+}
+display yesno Do you wish to make a perm rail?
+if #dispres = yes
+set %setrail yes
+if %setrail = yes
+{
+if EXEC notin #opts
+{
+  display ok In order to save the rail file you must have $"Disable Execute" un-checked.
++ Enable this option$from the Easyuo menu:$$Tools>Options>Permissions>Disable Execute$$Halting...
+  halt
+}
+
+display yesno Are you using win 98/95/ME
+if #dispres = yes
+set %cmd command.com
+if #dispres = yes
+set %_98 1
+EXECUTE %cmd /c if exist %file del %file
+}
+hh:
+display yesnocancel Click Yes If you wish to Mark a rail spot. Click no if you are finished. Click cancel if your wish to re-target a location
+if #dispres = no
+{
+if %setrail = yes
+gosub saverail
+set %jin #jindex
+deletejournal
+return
+}
+if #dispres = Cancel
+{
+    set %nn %nn - 1
+    set %oo %oo - 1
+    goto hh
+}
+if #dispres = yes && %userail <> Yes
+{
+GOSUB FINDSHOVEL
+set #lobjectid #findid
+event macro 17 0
+set %first %first + 1
+if %opendoor = #true
+gosub door
+wait 20
+waiting:
+if #targcurs = 1
+goto waiting
+set %st1 #cursorx
+set %st2 #cursory
+set %set1 #ltargetx
+set %set2 #ltargety
+set %set3 #ltargetz
+gosub remember
+goto hh
+}
+skipp:
+return
+
+if %count = #true
+gosub menu
+if %userail <> yes
+{
+if %recall = #true
+{
+gosub recall
+}
+gosub gohome
+}
+loop:
+gosub digger
+gosub findshovel
+gosub makeshovel
+noshovelneeded:
+gosub digger
+gosub check
+goto loop
+
+;******FIND SHOVEL SUBROUTINE***********
+sub findshovel
+finding:
+finditem %shovelid c_ , %backpackid
+       wait 5
+       if #findid = X
+{
+if %recall = #true
+{
+gosub recall
+}
+gosub gohome
+gosub house
+gosub shovell
+GOSUB goback
+}
+ignoreitem reset
+return
+
+;4444444444444444444444444444444
+sub digger
+WALKAGAIN:
+if %nn < %home 2
+gosub loc
+GOTO WALKAGAIN
+RETURN:
+if %nn < %home
+goto digout
+if %health = #true && #hits < #maxhits - 10
+ gosub health
+ ignoreitem reset
+GOSUB FINDSHOVEL
+if #weight > %begin + 12
+set %maxweight #maxweight - 48
+else
+set %maxweight #maxweight - 24
+set %begin #weight
+set #lobjectid #findid
+event macro 17 0
+target 4s
+ignoreitem #findid
+if %AlwaysClick = #true
+set %targ 0
+if %targ = 0 || %userail = yes
+{
+set %targ 1
+click %digxx . %n %digyy . %n f
+click %digxx . %n %digyy . %n d
+}
+set #ltargetx %digspotx
+set #ltargety %digspoty
+set #ltargetz %digspotz
+wait %tim
+set #ltargetkind 2
+event macro 22
+if %sand = yes
+{
+GOSUB CHECK
+IF %MARK = 99
+GOTO SANDCHECK
+wait 7s
+}
+GOSUB CHECK
+SANDCHECK:
+if %mark = 99 2
+set %MARK 0
+gosub loc
+GOTO RETURN
+digout:
+return
+
+;**************CHECK SUBROUTINE****************
+sub check
+set %checkit #jindex
+FOR %i %jin %checkit
+{
+   SCANJOURNAL %I
+if #weight > %maxweight || Your_backpack_is_full in #journal
+goto jumpout
+      if not_enough in #journal || no_metal in #journal || can't in #journal || cannot in #journal || is_too_far_away in #journal || no_metal in #journal || no_sand in #journal  4
+        SET %MARK 99
+         DELETEJOURNAL
+SET %JIN %CHECKIT + 1
+          RETURN
+           }
+jumpout:
+SET %JIN %CHECKIT + 1
+if #weight > %maxweight || Your_backpack_is_full in #journal
+		{
+DELETEJOURNAL
+if #weight > #maxweight
+gosub dragit
+if %recall = #true
+gosub recall
+GOSUB GOHOME
+gosub house
+gosub goback
+RETURN
+}
+if you_loosen in #journal 1
+		gosub digger
+If you_destroyed in #journal 1
+          gosub checkshovel
+if %counter = 20
+set %x + 1
+if %counter = 20
+set %counter 0
+if %counter > 19
+gosub checkshovel
+	return
+
+;***********HOUSE SUBROUTINE************
+sub house
+if %straighthome <> #true
+{
+set %nn 1
+set %oo 1
+set %o 1
+set %n 1
+}
+;***********WALKING TO SECURE*************
+set %scnt #scnt
+movingtime:
+if #scnt - %scnt > 4
+     {
+      set %scnt #scnt
+      event macro 5 1
+      event macro 5 1
+      gosub recall
+     }
+      move %cx %cy 0 1s
+if #charposx <> %cx ||  #charposy <> %cy
+      goto movingtime
+      set %x + 1
+      set %counter 0
+;***************************HIDING********************
+;****************FIND AND OPEN CHEST*************
+if %hideme = #true && %bank = #false
+      event macro 13 21
+      wait 5
+opensecure:
+;Find chest
+if %Bank = #true
+{
+msg Bank $
+wait 15
+goto skip
+}
+FINDITEM %secureid G_2
+IF #FINDKIND = -1
+{
+GOTO OPENSECURE:
+}
+      ;Open chest
+      set #LOBJECTID %secureid
+      set #findmod 0_0
+      set #NEXTCPOSX 27
+      set #NEXTCPOSY 49
+      event macro 17 0
+skip:
+set %time #scnt + 10
+WaitSecureToOpen:
+if %time < #scnt
+goto opensecure
+    finditem %orebagid c_
+if #findid <> %orebagid
+	goto WaitSecureToOpen
+INGOREITEM RESET
+;---------------------------------------------Ore routine-------------------------------------------------
+IF %SMELT = #true
+gosub smelt
+if %count = #true
+{
+gosub count
+gosub menu
+}
+ore:
+finditem %alloreid c_ , %backpackid
+     if #findkind = 1
+       {
+           goto rock
+             }
+
+            if #findkind = 0
+          {
+IF #lLiftedKind  <> 1
+     event drag #findid
+wait 15
+msg $
+wait 5
+waitfordump:
+if %bank = #true
+ finditem %orebagid C_
+else
+       finditem %orebagid C_ , %secureid
+        if #findid = x
+         goto opensecure
+          set #findmod 20_10
+              click #findx #findy p
+if #lliftedkind = 1
+goto waitfordump
+                 wait 5
+                    goto ore
+	            }
+
+rock:
+set %w #weight
+finditem BVI_dwj_ c_ , %backpackid
+if #findkind <> 0
+goto mana
+if #findkind = 0 && %color = #true
+{
+IF #lLiftedKind  <> 1
+   event drag #findid
+if #findCol = 0   ;regular
+click 168 167 p
+if #findCol = 2419   ;Dull Copper
+click 145 167 p
+if #findCol = 2406  ;Shadow 
+click 122 167 p
+if #findCol = 2413  ;Copper
+click 102 167 p
+if #findCol = 2418   ;Bronze
+click 79 167 p
+if #findCol = 2213  ;Golden
+click 61 216 p
+if #findCol = 2425  ;Agapite 
+click 81 216 p
+if #findCol = 2207  ;Verite 
+click 105 216  p
+if #findCol = 2219   ;Valorite
+click 120 216 p
+WAIT 25
+goto rock
+	}
+if #findkind = 0
+{
+IF #lLiftedKind  <> 1
+    event drag #findid
+	  wait 20
+      click 151 167 p
+	}
+;if %w = #weight
+;{
+;event drag #findid 
+;wait 20
+	; click 197 115 p
+;}
+goto rock
+
+mana:
+IF %RAIL = #TRUE && %n < %FIRST
+{
+GOSUB GOBACK
+GOTO DIGDIG
+}
+IF %manaset = #false
+{
+
+
+          return
+}
+if #mana < %Totalmana
+{
+            event macro 13 46
+            wait 10s
+            goto mana
+
+}
+return
+;--------------------------------------GET SHOVEL---------------------------------------------------------
+sub shovell
+finditem %shovelid c_ , %backpackid
+if #findid <> x
+return
+set %amount 0
+getmore:
+finditem %shovelid c_ , %secureid
+if #findkind = -1
+{
+display msg out of shovels. Resupply and press play.
+          pause
+set %nn 2
+}
+
+if #findkind = 0
+{
+      more:
+         event drag #findid
+wait 20
+           oops:
+                 click 718 367 p mc
+wait 20
+if #LLIFTEDKIND = 1
+goto oops
+                ignoreitem #findid
+           wait 5
+     finditem %shovelid c_ , %secureid
+set %amount %amount + 1
+wait 5
+}
+if #findkind = -1
+   {
+ ignoreitem reset
+    return
+     }
+      If %amount < %shovels
+     {
+   goto more
+}
+ ignoreitem reset
+return
+
+sub smelt
+findItem %forge g_3
+wait 10
+if #findid = x
+pause
+	set #lTargetID #findid
+	set #lTargetKind 1
+_smelt:
+	findItem DWJ_EWJ_GWJ_tvj C_ , %backpackid
+	if #findid <> x
+	{
+if #findtype = TVJ && #findstack <= 1
+  {
+    ignoreitem #findid
+}
+set %testw #weight
+		set #lObjectID #findID
+		event Macro 17 0
+		wait 5
+		event Macro 22 0
+wait 20
+if %testw = #weight
+ignoreitem #findid
+		goto _smelt
+
+	}
+ignoreitem reset
+return
+
+;--------------------------------------FORGE------------------------------------
+
+
+;----------------------------------------HEAL----------------------------------------
+sub health
+if #hits >= #maxhits - 10
+return
+set *511 resume
+loopit:
+wait 10
+if #hits < #maxhits - 10
+goto loopit
+set *511 pause
+return
+
+;------------------------OVERWEIGHT ORE DRAG-----------------------------
+sub dragit
+         SET %SS 0
+   drop:
+SET %SS %SS + 1
+if #weight < #maxweight
+goto end
+if %ss = 9 && #weight > #maxweight
+set %ss 0
+     WAIT 15
+if %ss = 1 3
+set %st 300
+set %sy 215
+set %ds 50
+IF %SS = 2
+     SET %SY %SY + %ds
+IF %SS = 3
+     SET %ST %ST + %ds
+IF %SS = 4
+     SET %SY %SY - %ds
+if %ss = 5 4
+set %st 300
+set %sy 215
+set %ss 6
+set %ds 65
+IF %SS = 6
+     SET %SY %SY + %ds
+IF %SS = 7
+     SET %ST %ST + %ds
+IF %SS = 8
+     SET %SY %SY - %ds
+finditem dwj c_  , %backpackid
+    if #findkind = 0
+      {
+IF #LLIFTEDKIND = 0
+{
+        Event Drag #Findid
+gosub amount
+          wait 5
+if %logamount < #findstack
+            msg %logamount $
+               else
+                msg $
+                 wait 20
+}
+       click %ST %SY P
+     }
+   GOTO drop
+end:
+return
+
+sub amount
+set %logamount #weight - #maxweight
+set %divide ( ( %logamount / 2 ) * 2 )
+if %divide = %logamount
+set %logamount ( ( %logamount / %logweight ) + 1 )
+else
+set %logamount ( ( ( %logamount + 1 ) / %logweight ) + 1 )
+return
+
+;-------------------------------Program loc below here-------------------------------
+sub loc
+set %mark 0
+if %userail = yes && %preset <> 1
+{
+            set %n 0
+            set %o 0
+            set %nn 0
+            set %oo 0
+set %preset 1
+call %file
+if %first = 0
+display msg Unable to locate file. Ensure That you have made and saved a rail before using the perm rail setting. Script has been halted.
+if %first = 0
+halt
+set %first %first - 1
+}
+msg $
+IF %nn >= %FIRST + 1
+{
+if %straighthome = #true
+{
+ set %n 1
+            set %o 1
+            set %nn 1
+            set %oo 1
+}
+if %recall = #true
+gosub recall
+gosub gohome
+gosub house
+}
+if %nn < %first + 1
+{
+set %targ 0
+set %n %n + 1
+set %o %o + 1
+set %nn %nn + 1
+set %oo %oo + 1
+SET %MARK 0
+set %x + 1
+if %opendoor = #true
+gosub door
+set %digspotx %digx . %n
+set %digspoty %digy . %n
+set %digspotz %digz . %n
+set %movex %walk . %n
+set %movey %wallk . %n
+set %scnt #scnt + 5
+while #scnt < %scnt
+{
+move %movex %movey  0 5s
+if %movex <> #charposx && %movey <> #charposy
+{
+event pathfind %movex %movey
+wait 1s
+move %movex %movey 0 3s
+}
+if %movex = #charposx && %movey = #charposy
+goto moveout
+}
+}
+moveout:
+return
+
+
+sub remember
+set %n %n + 1
+set %digxx . %n %st1
+set %digyy . %n %st2
+set %digx . %n %set1
+set %digy . %n %set2
+set %digz . %n %set3
+set %walk . %n #charposx
+set %wallk . %n #charposy
+set %nn %n
+return
+
+sub gohome
+set %charposx %walk2
+set %charposy %wallk2
+if %straighthome = #true
+{
+SET %NNN %NN
+gosub straighthome
+goto bott
+}
+msg $
+if %recall <> #true
+SET %NNN %NN
+moveagain:
+set %nn %nn - 1
+move %walk . %nn %wallk . %nn 0 5s
+if %walk . %nn <> #charposx && %wallk . %nn <> #charposy
+{
+finditem %doorname g_3
+if #findid <> x && %opendoor = #true
+gosub door
+event pathfind %walk . %nn %wallk . %nn
+wait 1s
+move %walk . %nn %wallk . %nn 0 3s
+}
+if %opendoor = #true
+gosub door
+IF %NN <> 1
+goto moveagain
+set %nn 1
+set %n 1
+bott:
+return
+
+sub goback
+set %charposx %walk . %nnn
+set %charposy %wallk . %nnn
+if %straighthome = #true
+{
+gosub straighthome
+goto bottt:
+}
+if %recall = #true
+set %nnn %NR
+set %nn 1
+set %n 1
+msg $
+if %opendoor = #true
+gosub door
+moveon:
+IF %NNN >= %FIRST + 1
+{
+RETURN
+}
+IF %NNN = %NN
+RETURN
+SET %N %N + 1
+set %nn %nn + 1
+move %walk . %nn %wallk . %nn 0 5s
+if %walk . %nn <> #charposx && %wallk . %nn <> #charposy
+{
+event pathfind %walk . %nn %wallk . %nn
+wait 1s
+move %walk . %nn %wallk . %nn 0 3s
+}
+gosub door
+goto moveon
+bottt:
+return
+
+
+sub count
+ingot:
+finditem %ingotid c_ , %backpackid
+wait 20
+if #findkind = 0
+{
+if #findCol = 0   ;regular
+set %iron %iron + #FINDSTACK
+if #findCol = 2419   ;Dull Copper
+set %d %d + #FINDSTACK
+if #findCol = 2406  ;Shadow 
+set %s %s + #FINDSTACK
+if #findCol = 2413  ;Copper
+set %c %c + #FINDSTACK
+if #findCol = 2418   ;Bronze
+set %b %b + #FINDSTACK
+if #findCol = 2213  ;Golden
+set %g %g + #FINDSTACK
+if #findCol = 2425  ;Agapite 
+set %a %a + #FINDSTACK
+if #findCol = 2207  ;Verite 
+set %ve %ve + #FINDSTACK
+if #findCol = 2219   ;Valorite
+set %va %va + #FINDSTACK
+ignoreitem #findid
+goto ingot
+	}
+ignoreitem reset
+return
+
+sub menu
+if %menuset = 1
+goto count
+set %menuset 1
+menu clear
+      menu window size 100 243
+      menu window color BLACK
+      menu font bgcolor BLACK
+menu window title Bod counter
+menu font align center
+      menu font style
+	menu font color red
+	menu font size 11
+menu text stat 18 0 Total Ingots
+      menu font align center
+      menu font style
+	menu font color green
+	menu font size 11
+menu text stat 5 25 Iron
+	menu font size 11
+	menu font style
+	menu font color green
+menu text stat 5 50  Dull
+	menu font style
+	menu font color green
+	menu font size 11
+menu text stat 5 75 Shadow
+	menu font style
+	menu font color green
+	menu font size 11
+menu text stat 5 100 Copper
+	menu font style
+	menu font color green
+	menu font size 11
+menu text stat 5 125 Bronze
+	menu font style
+	menu font color green
+	menu font size 11
+menu text stat 5 150 Gold
+	menu font style
+	menu font color green
+	menu font size 11
+menu text stat 5 175 Agapite
+	menu font style
+	menu font color green
+	menu font size 11
+menu text stat 5 200 Vetite
+menu font style
+	menu font color green
+	menu font size 11
+menu text stat 5 225 Valorite
+menu font align center
+count:
+      menu font style B
+	menu font color RED
+	menu font size 11
+menu Delete stat1
+menu text stat1 70 25 %iron
+	menu font size 11
+	menu font style B
+	menu font color RED
+menu Delete stat2
+menu text stat2 70 50 %d
+	menu font style B
+	menu font color RED
+	menu font size 11
+menu Delete stat3
+menu text stat3 70 75 %s
+	menu font style B
+	menu font color RED
+	menu font size 11
+menu Delete stat4
+menu text stat4 70 100 %c
+	menu font style B
+	menu font color RED
+	menu font size 11
+menu Delete stat5
+menu text stat5 70 125 %b
+	menu font style B
+	menu font color RED
+	menu font size 11
+menu Delete stat6
+menu text stat6 70 150 %g
+	menu font style B
+	menu font color RED
+	menu font size 11
+menu Delete stat7
+menu text stat7 70 175 %a
+	menu font style B
+	menu font color RED
+	menu font size 11
+menu Delete stat8
+menu text stat8 70 200 %ve
+menu font style B
+	menu font color RED
+	menu font size 11
+menu Delete stat9
+menu text stat9 70 225 %va
+set #menubutton N/A
+	menu show 0 290
+gosub stop
+return
+
+sub saverail
+menu clear
+menu font color Red
+menu font size 10
+menu text 10 5 txt Wait.. Saving rail.. Screen should flash
+set %tempn %n
+set %tempo %n
+set %n 0
+set %o 0
+set %numb 0
+set %hhh 0
+looprail:
+set %hhh %hhh + 1
+set %array . %hhh set , #spc , % , walk . %n , #spc , %walk . %n
+set %hhh %hhh + 1
+set %array . %hhh set , #spc , % , wallk . %n , #spc , %wallk . %n
+set %hhh %hhh + 1
+set %array . %hhh set , #spc , % , digxx . %n , #spc , %digxx . %n
+set %hhh %hhh + 1
+set %array . %hhh set , #spc , % , digyy . %n , #spc , %digyy . %n
+if %n = %tempo
+{
+set %hhh %hhh + 1
+set %array . %hhh set , #spc , % , findfile , #spc , 1
+set %hhh %hhh + 1
+set %array . %hhh set , #spc , % , first , #spc , %tempo
+set %hhh %hhh + 1
+set %array . %hhh Exit
+menu hide
+set %araysave %hhh
+gosub saveitall array 1 %araysave %file
+return
+
+;================================== 
+; Script Name: Sub WriteFastDOSArray 
+; Author: Roadkill 
+; Version: 1.2 
+; Client Tested with: 4.0.2a patch21 
+; EUO version tested with: build 0082 
+; Shard OSI / FS: OSI 
+; Revision Date: 11May04 
+; Public Release: 12May04 
+; Global Variables Used: none 
+; Purpose: write the values from an array into multiline file 
+;     using single DOS write for speed instead of slow loop. 
+;==================================
+sub saveitall
+  set !lpc #lpc
+  set #lpc 1000
+   set !doslengthlimit 2000
+  ;get comspec for OS 
+     str left #osver 1
+     set !filecmd cmd.exe
+     if %_98 = 1
+{
+       set !filecmd command.com
+set !doslengthlimit 500
+}
+     ;test for allow exec 
+     if exec notin #opts
+     {
+       display OK You MUST have "allow Execute" enabled to write a file,$
+       + and right now you DON'T! Fix it...you have 10 seconds.
+       wait 10s
+     }
+     set !writestring %1 , %2
+     set !writestring % . !writestring
+     set !wstart %2 + 1
+     set !crlf #spc , >> , #spc , %4 , #spc , && , #spc , echo , #spc
+     for !z !wstart %3
+     {
+       set !element %1 , !z
+          set !element % . !element
+          str len !element
+          set !elementlen #strres
+          str len !writestring
+          set !writestringlen #strres
+          if !writestringlen + !elementlen > !doslengthlimit
+          {
+               execute !filecmd /c echo !writestring >> %4
+               wait 5
+               set !writestring #smc , ---bufferdump---
+          }
+          set !writestring !writestring , !crlf , !element
+     }
+       execute !filecmd /c echo !writestring >> %4
+       wait 5
+  set #lpc !lpc
+return
+
+}
+set %n %n + 1
+set %o %o + 1
+goto looprail
+return
+
+sub door
+finditem %doorname g_3
+set #lobjectid #findid
+set #ltargetid #findid
+event macro 17 0
+wait 30
+return
+
+sub straighthome
+set %movex #charposx
+set %movey #charposy
+set %resetx 0
+set %resety 0
+if %charposy < %movey
+set %p 1
+else
+set %p 0
+if %charposx < %movex
+set %pp 1
+else
+set %pp 0
+set %addx %movex
+set %addy %movey
+continue:
+set %spec %movex - %charposx
+if %spec < 1
+set %spec %Charposx - %movex
+set %specc %movey - %charposy
+if %specc < 1
+set %specc %Charposy - %movey
+
+if %resetx <> 1 || 8 <= %spec
+{
+if %charposx < %movex
+set %addx %addx - 8
+else
+set %addx %addx + 8
+set %movex %addx
+}
+if %resety <> 1 || 8 <= %specc
+{
+if %charposy < %movey
+set %addy %addy - 8
+else
+set %addy %addy + 8
+set %movey %addy
+}
+
+if 8 >= %spec
+{
+set %movex %charposx
+set %resetx 1
+}
+if 8 >= %specc
+{
+set %movey %charposy
+set %resety 1
+}
+keepmoving:
+scanjournal
+if can't in #journal
+{
+move %movex %movey 1 4s
+}
+deletejournal
+set %edx #charposx
+set %edy #charposy
+move %movex %movey 1 4s
+}
+event pathfind %movex %movey #charposz
+move %movex %movey 1 3s
+wait 25
+if %edx = #charposx && %edy = #charposy
+{
+if %wqe < 3
+set %wqe %wqe + 1
+else
+set %wqe 0
+if %wqe = 0
+{
+set %signx +
+set %signy +
+}
+if %wqe = 1
+{
+set %signx +
+set %signy -
+}
+if %wqe = 2
+{
+set %signx -
+set %signy -
+}
+if %wqe = 3
+{
+set %signx -
+set %signy +
+}
+set %movey %movey %signx 3
+set %movex %movex %signy 3
+move %movex %movey 0 3s
+set %edx #charposx
+set %edy #charposy
+}
+if #charposx <> %movex || #charposy <> %movey
+{
+goto keepmoving
+}
+if %resetx = 1 && %resety = 1
+return
+goto continue
+return
+
+sub Recall
+if #weight > #maxweight
+gosub dragit
+set %recallloop 1
+if %recall = #false
+{
+set %recallloop 0
+return
+}
+wait 20
+SET %NR %NN
+            set %nn 2
+            set %oo 2
+            set %n 2
+            set %o 2
+set %cxx #charposx
+set %cyy #charposy
+lookagain:
+finditem %object c_ , %backpackid
+if #findid <> x
+{
+set #ltargetid #findid
+event macro 15 31
+wait 2s
+scanjournal #jindex
+if fiz in #journal
+goto lookagain
+set #ltargetkind 1
+event macro 22 0
+wait 2s
+ set #SCNT 0
+wait:
+   if #SCNT > 10
+      goto lookagain
+            wait 30
+   if %cxx = #charposx
+   {
+      if %cyy = #charposy
+      {
+         goto wait
+      }
+   }
+set %recallloop 0
+   return

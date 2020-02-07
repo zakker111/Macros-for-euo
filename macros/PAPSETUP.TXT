@@ -1,0 +1,3 @@
+; ,papua mining setup 
+set %meinekisteid ILNEH 
+set %dropbag NMDFH 

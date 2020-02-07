@@ -1,0 +1,20 @@
+initevents
+FindItem XHF 1
+
+;target 1
+set %random1 #random % 10 - 5
+set %random2 #random % 10 - 5
+set #LObjectID #FindID
+set #LTargetKind 2
+set #LTargetX %random1  + #CharPosX
+set #LTargetY %random2  + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+wait 15s
+
+return
+
+
+
+

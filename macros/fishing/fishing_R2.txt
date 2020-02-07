@@ -1,0 +1,755 @@
+ ;==================================================== 
+; Script Name: Fish Drager
+; Author: R2-D2 
+; Version: 1.0 
+; Public Release: 14-01-2005
+; Current Version Released 14-01-2006
+; Client Tested with: 3.0.0 c 
+; EUO version tested with: 1.42.00B4 
+; Shard OSI / FS: FS
+; Purpose: Fish and drag the fish to the backpack
+; 
+;============================================================ 
+
+;================== 
+;     Script by R2-D2
+;================== 
+;Set the drop position to you Char's head, and will drop in you backpack
+;Thtats all, jut let it go one, till gets over wieght, then will pause the macro.
+
+
+initevents
+
+set #SYSMSGCOL 63
+event sysmessage Fishing macro by R2-D2...
+wait 1s
+set #NEXTCPOSX 0
+set #NEXTCPOSY 0
+set %backpack #CONTID
+event sysmessage @@ Point the cursor over you Char's head and press ENTER.
+
+waitenter:
+onhotkey ENTER
+goto continueconfig
+goto waitenter
+
+continueconfig:
+
+set %click_positionx #CURSORX
+set %click_positiony #CURSORY
+
+wait 1s
+
+set %slot 1
+set #LTARGETZ 0
+set #LTARGETKIND 2
+
+gosub 1
+
+finditem XHF
+set %fishpole #FINDID
+
+if #FINDID = X
+{
+event sysmessage Fatal: Unable to find any Fishing Pole!
+stop
+}
+
+event sysmessage Macro started
+
+fish:
+
+gosub %slot
+
+set #LOBJECTID %fishpole
+
+event macro 17 0
+target 2s
+event macro 22 0
+
+set #SCNT 0
+
+scan:
+
+if #SCNT > 3
+goto fish
+
+if  #WEIGHT >= #MAXWEIGHT
+pause
+
+ScanJournal 1
+
+if too_far_away in #JOURNAL
+{
+gosub newslot
+gosub %slot
+goto fish
+}
+
+if you_can't_see in #JOURNAL
+{
+gosub newslot
+gosub %slot
+goto fish
+}
+
+if Nao_a_peixe_aqui in #JOURNAL
+{
+gosub newslot
+gosub %slot
+goto fish
+}
+
+if you_pull_out in #JOURNAL
+{
+gosub newslot
+gosub %slot
+goto fish
+}
+
+if try_fishing_in_water in #JOURNAL
+{
+gosub newslot
+gosub %slot
+goto fish
+}
+
+if targeting_canceled in #JOURNAL
+goto fish
+
+
+finditem GQD_FQD_EQD_DQD G_2
+
+if #FINDBAGID <> %backpack
+{
+if #FINDID = X
+goto scan
+if #FINDTYPE = MML
+if #FINDTYPE = FQD
+if #FINDTYPE = MLM
+if #FINDTYPE = GQD
+if #FINDTYPE = LMM
+if #FINDTYPE = EQD
+if #FINDTYPE = LML
+if #FINDTYPE = DQD
+event drag #FINDID
+wait 20
+msg $
+click %click_positionx %click_positiony p
+wait 1s
+}
+
+if #FINDID != X
+ignoreitem #FINDID
+
+goto scan
+
+sub newslot
+set %slot %slot + 1
+if %slot > 121
+set %slot 0
+return
+
+sub 1
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 2
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 3
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 4
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 5
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 6
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY
+return
+
+sub 7
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 8
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY + 2
+return
+
+sub 9
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 10
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 11
+set #LTARGETX #CHARPOSX - 5
+set #LTARGETY #CHARPOSY + 5
+return
+
+sub 12
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 13
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 14
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 15
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 16
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 17
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY
+return
+
+sub 18
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 19
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY + 2
+return
+
+sub 20
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 21
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 22
+set #LTARGETX #CHARPOSX - 4
+set #LTARGETY #CHARPOSY + 5
+return
+
+sub 23
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 24
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 25
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 26
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 27
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 28
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY
+return
+
+sub 29
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 30
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY + 2
+return
+
+sub 31
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 32
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 33
+set #LTARGETX #CHARPOSX - 3
+set #LTARGETY #CHARPOSY + 5
+return
+
+sub 34
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 35
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 36
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 37
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 38
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 39
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY
+return
+
+sub 40
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 41
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY + 2
+return
+
+sub 42
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 43
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 44
+set #LTARGETX #CHARPOSX - 2
+set #LTARGETY #CHARPOSY + 5
+return
+
+sub 45
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 46
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 47
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 48
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 49
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 50
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY
+return
+
+sub 51
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 52
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY + 2
+return
+
+sub 53
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 54
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 55
+set #LTARGETX #CHARPOSX - 1
+set #LTARGETY #CHARPOSY + 5
+return
+
+sub 56
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 57
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 58
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 59
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 60
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 61
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY
+return
+
+sub 62
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 63
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY + 2
+return
+
+sub 64
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 65
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 66
+set #LTARGETX #CHARPOSX
+set #LTARGETY #CHARPOSY + 5
+return
+
+sub 67
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 68
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 69
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 70
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 71
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 72
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY
+return
+
+sub 73
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 74
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY + 2
+return
+
+sub 75
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 76
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 77
+set #LTARGETX #CHARPOSX + 1
+set #LTARGETY #CHARPOSY + 5
+return
+
+sub 78
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 79
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 80
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 81
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 82
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 83
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY
+return
+
+sub 84
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 85
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY + 2
+return
+
+sub 86
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 87
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 88
+set #LTARGETX #CHARPOSX + 2
+set #LTARGETY #CHARPOSY + 5
+return
+
+sub 89
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 90
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 91
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 92
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 93
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 94
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY
+return
+
+sub 95
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 96
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY + 2
+return
+
+sub 97
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 98
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 99
+set #LTARGETX #CHARPOSX + 3
+set #LTARGETY #CHARPOSY + 5
+return
+
+sub 100
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 101
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 102
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 103
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 104
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 105
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY
+return
+
+sub 106
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 107
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY + 2
+return
+
+sub 108
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 109
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 110
+set #LTARGETX #CHARPOSX + 4
+set #LTARGETY #CHARPOSY + 5
+return
+
+sub 111
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY - 5
+return
+
+sub 112
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY - 4
+return
+
+sub 113
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY - 3
+return
+
+sub 114
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY - 2
+return
+
+sub 115
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY - 1
+return
+
+sub 116
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY
+return
+
+sub 117
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY + 1
+return
+
+sub 118
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY + 2
+return
+sub 119
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY + 3
+return
+
+sub 120
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY + 4
+return
+
+sub 121
+set #LTARGETX #CHARPOSX + 5
+set #LTARGETY #CHARPOSY + 5
+return

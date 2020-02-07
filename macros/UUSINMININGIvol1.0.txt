@@ -1,0 +1,386 @@
+
+initevents
+display okcancel Olisiko se Macrotuksen aika
+if #dispres = cancel
+HALT
+set %pick NPF_WTH 1
+Deletejournal
+
+1:
+FindItem %pick
+set #LObjectID #FindID
+set #LTargetKind 2
+set #LTargetX 0 + #CharPosX
+set #LTargetY 0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+2:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+3:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+4:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+5:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+6:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY 0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+7:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY 0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+8:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+9:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+10:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+11:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+12:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY 1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+13:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY 2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+14:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY -1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+15:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY -2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+16:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY -1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+17:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY -2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+18:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 1 + #CharPosX
+set #LTargetY -0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+19:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX 2 + #CharPosX
+set #LTargetY -0 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+20:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY -1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+21:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -0 + #CharPosX
+set #LTargetY -2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+22:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY -1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+23:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -1 + #CharPosX
+set #LTargetY -2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+24:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY -1 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+25:
+FindItem %pick
+set #lObjectID #findid
+set #LTargetX -2 + #CharPosX
+set #LTargetY -2 + #CharPosY
+event macro 17 0
+target
+event macro 22 0
+goto journalzekki
+
+journalzekki:
+scanjournal
+if Tässä_ei_ole in #journal
+{
+goto koodi
+}
+if Hakkusi_rikkoutui! in #journal
+{
+goto hakku
+}
+else
+goto journalzekki
+
+hakku:
+FindItem %pick
+goto koodi
+
+koodi:
+if %a = 25
+goto end
+{
+else
+set %a ( %a + 1 )
+}
+{
+if %a = 1
+goto 2
+}
+{
+if %a = 2
+goto 3
+}
+{
+if %a = 3
+goto 4
+}
+{
+if %a = 4
+goto 5
+}
+{
+if %a = 5
+goto 6
+}
+{
+if %a = 6
+goto 7
+}
+{
+if %a = 7
+goto 8
+}
+{
+if %a = 8
+goto 9
+}
+{
+if %a = 9
+goto 10
+}
+{
+if %a = 10
+goto 11
+}
+{
+if %a = 11
+goto 12
+}
+{
+if %a = 12
+goto 13
+}
+{
+if %a = 13
+goto 14
+}
+{
+if %a = 14
+goto 15
+}
+{
+if %a = 15
+goto 16
+}
+{
+if %a = 16
+goto 17
+}
+{
+if %a = 17
+goto 18
+}
+{
+if %a = 18
+goto 19
+}
+{
+if %a = 19
+goto 20
+}
+{
+if %a = 20
+goto 21
+}
+{
+if %a = 21
+goto 22
+}
+{
+if %a = 22
+goto 23
+}
+{
+if %a = 23
+goto 24
+}
+{
+if %a = 24
+goto 25
+}
+
+end:
+display Macro loppu vaiha paikkaa
+halt
+
+
+

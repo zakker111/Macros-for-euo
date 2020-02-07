@@ -1,0 +1,98 @@
+initevents
+display okcancel Starttaa perkele
+if #dispres = cancel
+HALT
+
+deletejournal
+set %pole XHF
+
+Alku:
+if #charghost = yes
+{
+HALT
+}
+
+1:
+finditem %pole
+set #lObjectID #findid
+set %random1 #random % 5 + 2
+set %random2 #random % 5 + 2
+set #LTargetX %random1 + #CharPosX
+set #LTargetY %random2 + #CharPosY
+event Macro 17
+target
+event macro 22 0
+wait 18s
+scanjournal
+if Tästä_kohtaa_ei_tunnu_kaloja_olevan. in #journal
+{
+deletejournal
+goto 2
+}
+else
+goto 1
+{
+
+2:
+finditem %pole
+set #lObjectID #findid
+set %random3 #random % 4 + 2
+set %random4 #random % 4 + 2
+set #LTargetX %random3 + #CharPosX
+set #LTargetY %random4 + #CharPosY
+event Macro 17
+target
+event macro 22 0
+wait 18s
+scanjournal
+if Tästä_kohtaa_ei_tunnu_kaloja_olevan. in #journal
+{
+deletejournal
+goto 3
+}
+else
+goto 2
+{
+
+3:
+finditem %pole
+set #lObjectID #findid
+set %random5 #random % 3 + 2
+set %random6 #random % 3 + 2
+set #LTargetX %random5 + #CharPosX
+set #LTargetY %random6 + #CharPosY
+event Macro 17
+target
+event macro 22 0
+wait 18s
+scanjournal
+if Tästä_kohtaa_ei_tunnu_kaloja_olevan. in #journal
+{
+deletejournal
+goto 4
+}
+else
+goto 3
+{
+
+4:
+finditem %pole
+set #lObjectID #findid
+set %random7 #random % 2 + 2
+set %random8 #random % 2 + 2
+set #LTargetX %random7 + #CharPosX
+set #LTargetY %random8 + #CharPosY
+event Macro 17
+target
+event macro 22 0
+wait 18s
+scanjournal
+if Tästä_kohtaa_ei_tunnu_kaloja_olevan. in #journal
+{
+deletejournal
+goto Alku
+}
+else
+goto 4
+{
+

@@ -1,0 +1,32 @@
+alku:
+
+onhotkey f7
+{
+    set #TargCurs 1
+
+    Odota:
+    wait 10
+    if #TargCurs = 1
+       goto Odota
+
+
+if #ltargetx < #charposx
+{
+event macro 15 23
+set #ltargetkind 2
+set #ltargetx #ltargetx - 1
+set #ltargety #ltargety - 0
+target
+event macro 22
+wait 10
+event macro 15 23
+set #ltargetkind 2
+set #ltargetx #ltargetx + 0
+set #ltargety #ltargety - 1
+target
+event macro 22
+goto alku
+
+
+}
+}

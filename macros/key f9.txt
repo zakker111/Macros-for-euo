@@ -1,0 +1,2 @@
+key  f9
+wait 10s

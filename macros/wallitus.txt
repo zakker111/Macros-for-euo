@@ -1,0 +1,26 @@
+onhotkey f7
+{
+    set #TargCurs 1
+
+    Odota:
+    wait 10
+    if #TargCurs = 1
+       goto Odota
+
+
+if #ltargetx < #charposx
+{
+set #ltargetx #ltargetx - 1
+event macro 15 23
+target
+event macro 22 0
+wait 10
+set #ltargetx #ltargetx + 2
+event macro 15 23
+target
+event macro 22 0
+
+
+}
+
+}

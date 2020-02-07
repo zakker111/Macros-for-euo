@@ -1,0 +1,5 @@
+{ sound Alert1.wav
+}
+del
+deleteJournal
+goto loop
